@@ -1,0 +1,50 @@
+# The Mixer Configuration File
+
+paths:
+  library_cache: "./library_cache"
+  mashup_output: "./mashups"
+  chroma_db: "./chroma_db"
+  failed_files: "./library_cache/failed"
+
+audio:
+  sample_rate: 44100
+  bit_depth: 16
+  channels: 2
+  default_format: "wav"
+
+models:
+  whisper_size: "base"  # tiny | base | small | medium | large
+  demucs_model: "htdemucs"  # mdx | htdemucs | htdemucs_ft
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+
+llm:
+  primary_provider: "anthropic"  # anthropic | openai
+  fallback_provider: "openai"
+  anthropic_model: "claude-3-5-sonnet-20241022"
+  openai_model: "gpt-4-turbo-preview"
+  max_retries: 3
+  timeout: 30
+
+curator:
+  bpm_tolerance: 0.05  # ±5%
+  max_stretch_ratio: 1.2  # Don't stretch beyond 20%
+  default_match_criteria: "hybrid"
+  max_candidates: 5
+
+engineer:
+  default_quality: "high"  # draft | high | broadcast
+  vocal_attenuation_db: -2  # How much quieter vocals vs instrumental
+  fade_duration_sec: 4.0
+  normalize_lufs: -14  # Target loudness
+
+performance:
+  max_concurrent_downloads: 4
+  enable_gpu: true
+  fallback_to_cpu: true
+  max_cache_size_gb: 50
+
+logging:
+  level: "INFO"  # DEBUG | INFO | WARNING | ERROR
+  file: "mixer.log"
+  max_file_size_mb: 100
+  backup_count: 5

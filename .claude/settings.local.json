@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(python -m mixer:*)",
+      "Skill(continuity_ledger)",
+      "Skill(create_handoff)",
+      "Bash(ls:*)",
+      "Bash(xargs basename:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

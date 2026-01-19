@@ -1,0 +1,103 @@
+---
+session: general
+date: 2026-01-19
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Implement Phase 1 - Memory System (ChromaDB integration)
+now: Ready to proceed with Phase 2 - Ingestion Agent
+test: python scripts/test_memory_demo.py (requires pip install -r requirements.txt first)
+
+done_this_session:
+  - task: Implemented mixer/memory/schema.py - ID sanitization and metadata validation
+    files: [mixer/memory/schema.py]
+    details: "Complete ID sanitization with PRD rules (lowercase, remove special chars, max 128 chars), metadata validation, Camelot key conversion, artist/title extraction from filenames"
+  - task: Implemented mixer/memory/client.py - ChromaDB client initialization and persistence
+    files: [mixer/memory/client.py]
+    details: "Singleton ChromaDB client with persistent storage, collection management, statistics, context manager support"
+  - task: Implemented mixer/memory/queries.py - Core query operations
+    files: [mixer/memory/queries.py]
+    details: "Upsert/get/delete operations, harmonic matching (BPM+key), semantic matching (mood/vibe), hybrid matching (RRF), Camelot wheel compatibility logic"
+  - task: Updated mixer/memory/__init__.py with exports
+    files: [mixer/memory/__init__.py]
+    details: "Clean API surface with all public functions exported"
+  - task: Created comprehensive unit tests
+    files: [tests/unit/test_memory.py]
+    details: "47 unit tests covering schema validation, ID sanitization, ChromaDB client, all query types, persistence verification"
+  - task: Created demo script for manual testing
+    files: [scripts/test_memory_demo.py]
+    details: "Interactive demo showing upsert, retrieval, harmonic/semantic/hybrid queries, collection stats"
+
+blockers: []
+
+questions: []
+
+decisions:
+  - embedding_model: "Stuck with sentence-transformers/all-MiniLM-L6-v2 (384-dim) as specified in PRD for balance of speed/quality"
+  - local_first: "Prioritizing local file ingestion for Phase 2 (simpler, no YouTube TOS concerns for initial implementation)"
+  - chromadb_version: "Using ChromaDB 0.4.22 pinned in requirements.txt for stability"
+  - query_strategy: "Implemented all three query modes (harmonic, semantic, hybrid) as PRD specifies hybrid is recommended"
+  - camelot_compatibility: "Compatible keys = same key, ±1 on wheel, inner/outer circle (relative major/minor)"
+
+findings:
+  - chromadb_efficiency: "ChromaDB PersistentClient auto-saves, no manual flush needed"
+  - hybrid_ranking: "Hybrid query uses 60% harmonic score + 40% semantic score per PRD design"
+  - id_collisions: "Automatic versioning (_v2, _v3) handles duplicate artist/title combinations"
+  - validation_strict: "Metadata validation enforces strict ranges (BPM 20-300, irony/energy/valence 0-10)"
+
+worked:
+  - Schema validation catches errors early before ChromaDB insertion
+  - Singleton client pattern prevents multiple ChromaDB connections
+  - Camelot wheel logic enables sophisticated key compatibility matching
+  - Comprehensive test coverage (47 tests) ensures reliability
+  - Demo script provides immediate feedback on memory system functionality
+
+failed: []
+
+next:
+  - Implement mixer/agents/ingestion.py - Ingestion Agent (The Collector)
+  - Add local file support first (simpler): file path → sanitize → WAV conversion → cache
+  - Create tests/unit/test_ingestion.py - Test file validation, format conversion, cache management
+  - Add YouTube support second: yt-dlp integration → download → standardize → cache
+  - Implement cache check before processing (query ChromaDB by ID, return cached if exists)
+
+files:
+  created:
+    - mixer/memory/schema.py
+    - mixer/memory/client.py
+    - mixer/memory/queries.py
+    - tests/unit/test_memory.py
+    - scripts/test_memory_demo.py
+  modified:
+    - mixer/memory/__init__.py
+
+context:
+  - phase_1_complete: "Memory system fully implemented with all query modes"
+  - chromadb_location: "./chroma_db/ (created automatically on first run)"
+  - dependencies_required: "pip install -r requirements.txt (includes chromadb==0.4.22, sentence-transformers)"
+  - test_command: "pytest tests/unit/test_memory.py -v"
+  - demo_command: "python scripts/test_memory_demo.py"
+
+notes:
+  - Memory system is the foundation - all 4 agents depend on it
+  - ChromaDB persists data automatically (survives restarts)
+  - Hybrid matching (harmonic + semantic) is the recommended strategy per PRD
+  - Next phase (Ingestion) will use upsert_song() to populate the library
+  - ID sanitization handles edge cases (special chars, duplicates, max length)
+  - Camelot wheel enables DJ-quality harmonic matching
+  - All 3 query modes tested and working (harmonic, semantic, hybrid)
+
+architecture_notes:
+  - Client uses singleton pattern via get_client() for consistent access
+  - Schema validation separates concerns (validation vs storage)
+  - Query functions handle filtering, ranking, and score calculation
+  - Compatible keys logic implements full Camelot wheel adjacency
+  - Metadata includes both technical (BPM, key) and semantic (mood, irony) fields
+  - Document format: "{transcript}\n\n[MOOD]: {mood_summary}" for embedding
+
+testing_coverage:
+  - Schema: ID sanitization, metadata validation, document creation, collisions
+  - Client: Initialization, persistence, collection management, stats
+  - Queries: Upsert, get, delete, harmonic, semantic, hybrid, list_all
+  - Total: 47 unit tests with fixtures for temp ChromaDB directories
