@@ -13,6 +13,18 @@ from mixer.agents.analyst import (
     AnalysisError,
 )
 
+from mixer.agents.engineer import (
+    create_classic_mashup,
+    create_stem_swap_mashup,
+    create_energy_matched_mashup,
+    create_adaptive_harmony_mashup,
+    create_theme_fusion_mashup,
+    create_semantic_aligned_mashup,
+    EngineerError,
+    SongNotFoundError,
+    MashupConfigError,
+)
+
 __all__ = [
     # Ingestion
     "ingest_song",
@@ -23,4 +35,14 @@ __all__ = [
     # Analysis
     "profile_audio",
     "AnalysisError",
+    # Engineering
+    "create_classic_mashup",
+    "create_stem_swap_mashup",
+    "create_energy_matched_mashup",
+    "create_adaptive_harmony_mashup",
+    "create_theme_fusion_mashup",
+    "create_semantic_aligned_mashup",
+    "EngineerError",
+    "SongNotFoundError",
+    "MashupConfigError",
 ]
