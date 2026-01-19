@@ -827,6 +827,247 @@ inst_seg = sidechain_compress(inst_seg, vocals_seg, threshold=-20, ratio=4)
 
 ---
 
+### Advanced Mashup Types (Phase 3+)
+
+**Status:** Future enhancement - requires section-level analysis from Analyst Agent
+
+The Engineer Agent will support **8 mashup strategies** that use AI reasoning to create genuinely novel combinations. These go beyond traditional "vocal over instrumental" mashups.
+
+#### Updated Function Signature (Phase 3)
+
+```python
+def build_mashup(
+    mashup_type: MashupType,
+    config: MashupConfig,
+    output_format: str = "mp3",
+    quality_preset: str = "high"
+) -> str:
+    """
+    Create mashup using specified strategy.
+
+    Args:
+        mashup_type: Which mashup strategy to use (see MashupType enum)
+        config: Type-specific configuration (vocal IDs, theme, etc.)
+        output_format: Export format
+        quality_preset: Processing quality level
+
+    Returns:
+        Absolute path to output file
+    """
+```
+
+#### Mashup Type Taxonomy
+
+| Type | Complexity | Key Innovation | Phase |
+|------|-----------|----------------|-------|
+| **Classic** | Low | Vocal A + Instrumental B (current spec) | 3B |
+| **Stem Role Swapping** | Low | Mix drums/bass/vocals from 3+ songs | 3B |
+| **Energy Curve Matching** | Medium | Align high-energy sections | 3C |
+| **Adaptive Harmony** | Medium | Auto-fix key clashes via pitch-shifting | 3C |
+| **Lyrical Theme Fusion** | Medium | Filter lyrics to unified theme | 3D |
+| **Semantic-Aligned** | Medium-High | Meaning-driven structure (not tempo) | 3D |
+| **Role-Aware Recomposition** | High | Vocals become lead/harmony/call/response | 3E |
+| **Conversational** | High | Songs talk to each other (dialogue) | 3E |
+
+#### Type 1: Classic (Already Spec'd)
+**What it does:** Traditional mashup - vocals from Song A over instrumental from Song B
+**Config:**
+```python
+{"vocal_id": "adele_rolling", "inst_id": "daft_punk_one_more_time"}
+```
+**Implementation:** See lines 670-826 above
+
+#### Type 2: Stem Role Swapping
+**What it does:** Compose from a palette of stems (drums, bass, vocals, other)
+**Use case:** "Beyoncé vocals + Daft Punk drums + Beatles bass"
+**Config:**
+```python
+{
+    "vocals": "beyonce_crazy_in_love",
+    "drums": "daft_punk_harder_better",
+    "bass": "beatles_come_together",
+    "other": "radiohead_everything"
+}
+```
+**Algorithm:**
+1. Separate each source song into stems
+2. Time-stretch all to match target BPM (use drums' BPM as reference)
+3. Align downbeats
+4. Mix all stems together
+
+**Innovation:** Instead of 2-song mashups, you're composing from multiple sources
+
+#### Type 3: Energy Curve Matching
+**What it does:** Align sections by energy level (not just tempo/key)
+**Use case:** "Make high-energy choruses align with high-energy drops"
+**Config:**
+```python
+{"song_a_id": "quiet_verse_song", "song_b_id": "explosive_drop_song"}
+```
+**Algorithm:**
+1. Extract energy profiles for all sections (using `librosa.feature.rms`)
+2. Find best energy alignments (e.g., high-energy chorus A → high-energy drop B)
+3. Build mashup by swapping sections based on energy similarity
+4. Crossfade between sections for smooth transitions
+
+**Innovation:** Structure follows emotional intensity, not just bar counts
+
+#### Type 4: Adaptive Harmony
+**What it does:** Detect key clashes and pitch-shift to eliminate them
+**Use case:** "These songs are in different keys - fix it without losing vocal character"
+**Config:**
+```python
+{"vocal_id": "song_in_C", "inst_id": "song_in_F_sharp_minor"}
+```
+**Algorithm:**
+1. Check if keys are harmonically compatible (Camelot wheel)
+2. If not, calculate semitone shift needed
+3. LLM decides: shift vocal (changes voice) or shift instrumental (preserves vocal authenticity)
+4. Apply pitch-shift to chosen track
+5. Build mashup with aligned keys
+
+**Innovation:** AI decides which track to shift based on preserving authenticity
+
+#### Type 5: Lyrical Theme Fusion
+**What it does:** Only include lyrics that reinforce a target theme
+**Use case:** "Create a coherent heartbreak narrative from these two songs"
+**Config:**
+```python
+{
+    "song_a_id": "taylor_swift_all_too_well",
+    "song_b_id": "adele_someone_like_you",
+    "theme": "heartbreak"
+}
+```
+**Algorithm:**
+1. LLM analyzes each section's lyrics
+2. Classifies: Does this section reinforce the theme?
+3. Keep sections that match theme (with vocals)
+4. Replace non-matching sections with instrumental fills
+5. Build mashup with thematic coherence
+
+**Innovation:** Creates unified narrative from disparate songs
+
+#### Type 6: Semantic-Aligned Mashups
+**What it does:** AI designs emotional arc, selecting sections based on meaning
+**Use case:** "Build a journey from hope → doubt → defiance"
+**Config:**
+```python
+{
+    "song_a_id": "imagine_dragons_believer",
+    "song_b_id": "twenty_one_pilots_stressed_out"
+}
+```
+**Algorithm:**
+1. Extract emotional tone for each section (LLM-derived)
+2. LLM designs coherent emotional arc: Intro → Build → Climax → Resolution
+3. Select sections from either song to fulfill the arc
+4. Arrange non-linearly (e.g., A_verse → B_chorus → A_bridge)
+5. Crossfade between sections
+
+**Innovation:** Meaning drives structure, not musical rules
+
+#### Type 7: Role-Aware Vocal Recomposition
+**What it does:** Vocals dynamically shift between lead, harmony, call, response, texture
+**Use case:** "Make sparse vocals become harmony, dense vocals become lead"
+**Config:**
+```python
+{
+    "song_a_id": "ed_sheeran_shape_of_you",
+    "song_b_id": "the_weeknd_blinding_lights"
+}
+```
+**Algorithm:**
+1. Analyze vocal characteristics per section (density, intensity)
+2. LLM assigns roles dynamically:
+   - Lead (main melodic focus)
+   - Harmony (supporting layer, pitch-shifted)
+   - Call (poses question)
+   - Response (answers/echoes)
+   - Texture (rhythmic, no lyrics)
+3. Build mashup with role-based mixing:
+   - Lead: Full volume
+   - Harmony: -6dB, pitch-shifted +3 semitones
+   - Call/Response: Temporal arrangement with silence gaps
+   - Texture: Heavy processing (reverb, delay)
+
+**Innovation:** Vocals interact instead of just overlaying
+
+#### Type 8: Conversational Mashups
+**What it does:** Lyrics respond to each other like a dialogue
+**Use case:** "Make it sound like the singers are having a conversation"
+**Config:**
+```python
+{
+    "song_a_id": "song_with_questions",
+    "song_b_id": "song_with_answers"
+}
+```
+**Algorithm:**
+1. LLM detects question/answer patterns in both songs' lyrics
+2. Pairs lines that create dialogue:
+   - Question → Answer
+   - Statement → Agreement/Disagreement
+   - Emotion → Echo/Contrast
+3. Extract vocal snippets at lyric-level precision
+4. Arrange temporally with silence gaps (creates "listening" moments)
+5. Layer instrumental bed underneath
+
+**Example conversation:**
+```
+A: "Do you believe in love?"
+(silence - 0.3s)
+B: "I used to, yeah"
+(silence - 0.5s)
+A: "What changed?"
+(silence - 0.3s)
+B: "Everything and nothing"
+```
+
+**Innovation:** Creates duets that were never recorded
+
+---
+
+### Section-Level Metadata (Required for Advanced Types)
+
+**Added in Phase 3A** - Analyst Agent extracts per-section metadata:
+
+```python
+class SectionMetadata(TypedDict):
+    section_type: str              # "intro" | "verse" | "chorus" | "bridge" | "outro"
+    start_sec: float
+    end_sec: float
+    duration_sec: float
+
+    # Energy characteristics (librosa)
+    energy_level: float            # 0.0-1.0 (RMS energy)
+    spectral_centroid: float       # Brightness (Hz)
+    tempo_stability: float         # Beat consistency
+
+    # Vocal characteristics
+    vocal_density: str             # "sparse" | "medium" | "dense"
+    vocal_intensity: float         # 0.0-1.0
+
+    # Semantic analysis (LLM)
+    emotional_tone: str            # "hopeful" | "melancholic" | "defiant"
+    lyrical_function: str          # "narrative" | "hook" | "question" | "answer"
+    themes: List[str]              # ["love", "loss", "rebellion"]
+```
+
+**Libraries needed:**
+- `madmom` (onset/beat tracking)
+- `librosa.segment.agglomerative` (section detection)
+- Existing: Demucs, Whisper, Claude/GPT-4
+
+**Implementation phases:**
+- **Phase 3A:** Enhance Analyst Agent to extract section metadata
+- **Phase 3B:** Implement simple types (Classic, Stem Swap)
+- **Phase 3C:** Implement energy-based types (Energy Matching, Adaptive Harmony)
+- **Phase 3D:** Implement semantic types (Theme Fusion, Semantic-Aligned)
+- **Phase 3E:** Implement interactive types (Role-Aware, Conversational)
+
+---
+
 ## 7. User Interface
 
 ### CLI (Phase 1 - MVP)
@@ -843,8 +1084,18 @@ python mixer.py analyze  # Analyze all un-profiled songs
 # Find matches
 python mixer.py match "artist_title" --genre Country --semantic "ironic and upbeat"
 
-# Create mashup
+# Create mashup (Phase 2 - Classic only)
 python mixer.py mashup "song1_id" "song2_id" --vocals-from song1 --output high
+
+# Create mashup (Phase 3+ - Advanced types)
+python -m mixer mashup classic --vocal "song1" --inst "song2"
+python -m mixer mashup stem-swap --vocals "s1" --drums "s2" --bass "s3" --other "s4"
+python -m mixer mashup energy --songs "song1" "song2"
+python -m mixer mashup adaptive --vocal "song1" --inst "song2"
+python -m mixer mashup theme --songs "song1" "song2" --theme "heartbreak"
+python -m mixer mashup semantic --songs "song1" "song2"
+python -m mixer mashup role-aware --songs "song1" "song2"
+python -m mixer mashup convo --songs "song1" "song2"
 
 # Library management
 python mixer.py library list

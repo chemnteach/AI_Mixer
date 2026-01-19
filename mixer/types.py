@@ -1,7 +1,8 @@
 """Type definitions for The Mixer."""
 
-from typing import TypedDict, Literal, Optional, List
+from typing import TypedDict, Literal, Optional, List, Dict
 from datetime import datetime
+from enum import Enum
 
 
 # Configuration Types
@@ -82,6 +83,63 @@ class Config(TypedDict):
     logging: LoggingConfig
 
 
+# Mashup Types (Phase 3+)
+class MashupType(Enum):
+    """Types of mashup strategies.
+
+    Phase 3B (Simple):
+    - CLASSIC: Traditional vocal A + instrumental B
+    - STEM_SWAP: Mix drums/bass/vocals from 3+ songs
+
+    Phase 3C (Energy-based):
+    - ENERGY_MATCHED: Align sections by energy curves
+    - ADAPTIVE_HARMONY: Auto-fix key clashes via pitch-shifting
+
+    Phase 3D (Semantic):
+    - THEME_FUSION: Filter lyrics to unified theme
+    - SEMANTIC_ALIGNED: Meaning-driven structure (not tempo-driven)
+
+    Phase 3E (Interactive):
+    - ROLE_AWARE: Vocals become lead/harmony/call/response dynamically
+    - CONVERSATIONAL: Songs talk to each other (lyric dialogue)
+    """
+    CLASSIC = "classic"
+    STEM_SWAP = "stem_swap"
+    ENERGY_MATCHED = "energy_matched"
+    ADAPTIVE_HARMONY = "adaptive_harmony"
+    THEME_FUSION = "theme_fusion"
+    SEMANTIC_ALIGNED = "semantic_aligned"
+    ROLE_AWARE = "role_aware"
+    CONVERSATIONAL = "conversational"
+
+
+class SectionMetadata(TypedDict, total=False):
+    """Section-level metadata (verse, chorus, bridge, etc.).
+
+    Added in Phase 3A to enable advanced mashup types.
+    """
+    # Structural
+    section_type: str              # "intro" | "verse" | "chorus" | "bridge" | "outro"
+    start_sec: float               # Start timestamp
+    end_sec: float                 # End timestamp
+    duration_sec: float            # Section duration
+
+    # Energy characteristics (from librosa)
+    energy_level: float            # 0.0-1.0 (RMS energy)
+    spectral_centroid: float       # Brightness in Hz
+    tempo_stability: float         # Beat consistency 0-1
+
+    # Vocal characteristics (from stem analysis)
+    vocal_density: str             # "sparse" | "medium" | "dense"
+    vocal_intensity: float         # 0.0-1.0 (loudness + energy)
+    lyrical_content: str           # Actual lyrics in this section
+
+    # Semantic analysis (LLM-derived)
+    emotional_tone: str            # "hopeful" | "melancholic" | "defiant" | etc.
+    lyrical_function: str          # "narrative" | "hook" | "question" | "answer" | "reflection"
+    themes: List[str]              # ["love", "loss", "rebellion"]
+
+
 # Data Types
 class SongMetadata(TypedDict, total=False):
     """Complete metadata for a song in ChromaDB."""
@@ -104,6 +162,10 @@ class SongMetadata(TypedDict, total=False):
     artist: str
     title: str
     date_added: str
+
+    # Phase 3A: Section-level analysis for advanced mashups
+    sections: List[SectionMetadata]  # Section breakdown (verse, chorus, etc.)
+    emotional_arc: str                # e.g., "intro:hopeful → verse:doubt → chorus:defiant"
 
 
 class IngestionResult(TypedDict):
@@ -130,6 +192,38 @@ class LLMAnalysis(TypedDict):
     irony_score: int
     mood_summary: str
     valence: int
+
+
+class MashupConfig(TypedDict, total=False):
+    """Configuration for mashup creation.
+
+    Different mashup types require different config fields:
+    - CLASSIC: vocal_id, inst_id
+    - STEM_SWAP: vocals, drums, bass, other (song IDs)
+    - ENERGY_MATCHED: song_a_id, song_b_id
+    - THEME_FUSION: song_a_id, song_b_id, theme
+    - etc.
+    """
+    # Classic/Adaptive
+    vocal_id: str
+    inst_id: str
+
+    # Stem Swap
+    vocals: str
+    drums: str
+    bass: str
+    other: str
+
+    # Energy/Semantic/Role/Conversational
+    song_a_id: str
+    song_b_id: str
+
+    # Theme Fusion
+    theme: str  # "love" | "heartbreak" | "rebellion" | etc.
+
+    # Output settings
+    output_format: str  # "mp3" | "wav"
+    quality_preset: str  # "draft" | "high" | "broadcast"
 
 
 # Type Aliases

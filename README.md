@@ -24,7 +24,28 @@ ChromaDB integration fully implemented with:
 - Hybrid matching (recommended: combines harmonic + semantic)
 - Comprehensive test suite (47 unit tests)
 
-**Next: Phase 2 - Ingestion Agent**
+**Phase 2: Ingestion Agent ✅ COMPLETE**
+
+Audio ingestion from local files and YouTube:
+- Local file support (WAV, MP3, FLAC)
+- YouTube download via yt-dlp
+- Format conversion to standard WAV
+- Cache checking and deduplication
+- Comprehensive test suite (22 unit tests)
+
+**Phase 3A: Enhanced Analyst Agent ✅ COMPLETE**
+
+Section-level metadata extraction (foundation for advanced mashups):
+- Section detection (verse/chorus/bridge boundaries)
+- Energy analysis per section (RMS, spectral centroid, tempo stability)
+- Vocal analysis (density, intensity, lyric extraction)
+- Semantic analysis via LLM (emotional tone, themes, function)
+- Emotional arc generation
+- Comprehensive test suite (10 unit tests)
+
+**Next: Phase 3B - Simple Mashup Types**
+
+**Future Vision (Phase 3+):** 8 advanced mashup types including conversational mashups, semantic-aligned structures, and role-aware vocal recomposition. See `thoughts/shared/plans/advanced-mashup-types-roadmap.md` for full vision.
 
 ## Quick Start
 
@@ -211,12 +232,16 @@ MIT License - See LICENSE file for details
 
 - [x] Phase 0: Foundation (COMPLETE)
 - [x] Phase 1: Memory System (COMPLETE)
-- [ ] Phase 2: Ingestion Agent
-- [ ] Phase 3: Analyst Agent
+- [ ] Phase 2: Ingestion Agent (IN PROGRESS)
+- [ ] Phase 3A: Enhanced Analyst Agent (section-level metadata)
+- [ ] Phase 3B: Simple Mashup Types (Classic, Stem Swap)
+- [ ] Phase 3C: Energy-Based Mashups (Energy Match, Adaptive Harmony)
+- [ ] Phase 3D: Semantic Mashups (Theme Fusion, Semantic-Aligned)
+- [ ] Phase 3E: Interactive Mashups (Role-Aware, Conversational)
 - [ ] Phase 4: Curator Agent
-- [ ] Phase 5: Engineer Agent
-- [ ] Phase 6: LangGraph Workflow
-- [ ] Phase 7: CLI Refinement
-- [ ] Phase 8: Testing & QA
+- [ ] Phase 5: LangGraph Workflow
+- [ ] Phase 6: CLI Refinement
+- [ ] Phase 7: Testing & QA
 
-**Target MVP:** Priority 1+2 complete (~3.5 weeks)
+**Current Focus:** Phase 2 (Ingestion Agent)
+**Advanced Vision:** 8 AI-powered mashup types (see roadmap in `thoughts/shared/plans/`)
