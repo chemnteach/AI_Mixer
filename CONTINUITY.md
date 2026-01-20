@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-19 (Session 7)
-**Project:** The Mixer - AI-powered audio mashup pipeline
-**Current Phase:** All 7 Phases Complete + Web UI - Production Ready 🚀
+**Last Updated:** 2026-01-20 (Session 9)
+**Project:** The Mixer - AI-powered audio mashup pipeline + Crossfade Club visual DJ system
+**Current Phase:** All 7 Phases Complete + Web UI + Batch Ingestion + Crossfade Club PRD 🚀
 
 ---
 
@@ -90,12 +90,33 @@
 - Coverage: memory (98%), ingestion (95%), analyst (92%), engineer (93-98%), curator (94%), workflow (68-100%), CLI (production-ready)
 
 **Web UI (Post-Phase 7 Enhancement):**
-- `mixer_ui.py` - Complete Streamlit web interface (600+ lines)
+- `mixer_ui.py` - Complete Streamlit web interface (750+ lines)
 - `UI_GUIDE.md` - Comprehensive UI usage guide with workflows and FAQ
 - Features: Create Mashup tab (auto/manual modes), Library Management (browse/ingest/stats), Settings viewer
 - All 8 mashup types accessible via dropdown
 - Visual library browser with search, charts, metadata display
 - File upload, audio playback, download functionality
+
+**Batch Ingestion Features (Post-Phase 7 Enhancement):**
+- `mixer/agents/ingestion.py` - Added `extract_playlist_info()` function for YouTube playlists
+- **Batch Folder Ingest:** CLI `--folder` option and UI "Batch Folder" mode for CD rips
+- **YouTube Playlist Ingest:** CLI `--playlist` option and UI "YouTube Playlist" mode for curated collections
+- CLI: Progress bars, summaries, auto-analyze flag, max limit for playlists
+- UI: Four ingest modes (Upload, YouTube URL, Batch Folder, YouTube Playlist)
+- UI: Checkbox selection for playlist videos, select/deselect all buttons
+- Perfect for building libraries from CD collections or themed YouTube playlists
+
+**Crossfade Club — Visual DJ System (Future Expansion PRD):**
+- `CROSSFADE_CLUB_PRD.md` - Complete product requirements for video production system (35 sections)
+- **Concept:** Convert Mixer audio mashups into platform-optimized video content with animated cartoon DJ avatar
+- **Scope:** Two audio modes (mashup + single-song/event), event-safe guardrails, batch video generation
+- **Architecture:** Mixer → Director Agent → Blender Studio → FFmpeg Encoder → Platform variants
+- **Components:** Director (visual intelligence), Studio (3D animation), Encoder (video variants), Batch Runner
+- **Outputs:** Short-form (9:16 TikTok/Reels/Shorts), Long-form (16:9 YouTube), thumbnails, usage manifests
+- **MVP:** Base avatar with 5 core actions, single studio, 4 themes, automated rendering pipeline
+- **Future:** Wardrobe system, props, multiple characters (documented but not MVP scope)
+- **Legal:** Event-safe mode with usage manifests for client deliverables, music licensing disclaimers
+- **Status:** Design phase - PRD complete, implementation not yet started
 
 ---
 
@@ -128,6 +149,9 @@
 | Weighted compatibility scoring | BPM (35%), key (30%), energy (20%), genre (15%) balances factors | 2026-01-19 |
 | Curator wraps existing queries | Reuse Phase 1 query_harmonic/semantic/hybrid infrastructure | 2026-01-19 |
 | Streamlit for web UI | Pure Python, perfect for audio/ML, fast development, local-first | 2026-01-19 |
+| Batch folder ingestion | CD rips use case, reduces friction for building large libraries | 2026-01-19 |
+| YouTube playlist extraction | yt-dlp --flat-playlist avoids downloading until user confirms | 2026-01-19 |
+| Checkbox selection for playlists | User control over which videos to ingest from large playlists | 2026-01-19 |
 | Configurable weight overrides | Allow user customization via config.yaml or function args | 2026-01-19 |
 | Mashup type recommendation | Decision tree based on song characteristics (vocals, key distance, sections) | 2026-01-19 |
 | LangGraph for workflow orchestration | Proven library for agent state machines with built-in error handling | 2026-01-19 |
@@ -138,6 +162,16 @@
 | Auto-selection fallback | Auto-select top match if user doesn't respond (graceful degradation) | 2026-01-19 |
 | Progress message accumulation | List of human-readable messages for streaming display | 2026-01-19 |
 | Error handler with retry | Max 3 retries before workflow fails | 2026-01-19 |
+| Director Agent architecture | Separate visual intelligence layer bridges Mixer → video pipeline | 2026-01-20 |
+| Hybrid animation approach | Baked clips (quality) + procedural modulation (audio-responsive) | 2026-01-20 |
+| Timeline.json as authority | All visual behavior driven by timeline metadata, not code | 2026-01-20 |
+| Event-safe guardrails | Hard validation prevents risky outputs for client deliverables | 2026-01-20 |
+| Blender for 3D rendering | Industry standard, Python API (bpy), headless rendering support | 2026-01-20 |
+| AI for design, rigging for control | AI generates character concept, artist rigs once, automation forever | 2026-01-20 |
+| Platform-aware batch generation | Default to all variants (TikTok/Reels/Shorts/YouTube), opt-out supported | 2026-01-20 |
+| Theme system for presets | Lighting + color + studio variant bundles for rapid customization | 2026-01-20 |
+| Usage manifests for legal compliance | Plain-text documents clarify licensing responsibility for events | 2026-01-20 |
+| Base look MVP, expansions later | Single avatar/studio proves concept before wardrobe/props investment | 2026-01-20 |
 
 ### Advanced Mashup Types (Phase 3+)
 
@@ -626,7 +660,9 @@ python -m mixer --help
 - `2026-01-19_23-30_phase-4-complete.yaml` - Phase 4 (Curator Agent) completion
 - `2026-01-20_00-00_phase-5-complete.yaml` - Phase 5 (LangGraph Workflow) completion
 - `2026-01-20_01-00_phase-6-7-complete.yaml` - Phases 6-7 completion
-- `2026-01-20_02-00_web-ui-complete.yaml` - Web UI addition ⭐ (Latest)
+- `2026-01-20_02-00_web-ui-complete.yaml` - Web UI addition
+- `2026-01-20_03-00_batch-ingestion-complete.yaml` - Batch folder and playlist ingestion
+- Session 9 (2026-01-20) - Crossfade Club visual DJ system PRD ⭐ (Latest)
 
 **Format:** YAML with sections: goal, done_this_session, blockers, decisions, findings, worked, failed, next
 
@@ -637,6 +673,8 @@ python -m mixer --help
 **Documentation:**
 - `README.md` - User-facing documentation, quick start
 - `PRD.md` - Complete product requirements (1360 lines)
+- `CROSSFADE_CLUB_PRD.md` - Visual DJ system expansion PRD (35 sections)
+- `UI_GUIDE.md` - Comprehensive web UI usage guide
 - `CONTINUITY.md` - This file (architecture, decisions, state)
 
 **Configuration:**
