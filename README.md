@@ -173,6 +173,10 @@ python -m mixer interactive
 python -m mixer ingest https://youtube.com/watch?v=...
 python -m mixer ingest path/to/song.mp3
 
+# 1b. Batch ingest from folder (perfect for CD rips!)
+python -m mixer ingest --folder "C:\Users\YourName\Music\New Rips"
+python -m mixer ingest --folder "C:\Users\YourName\Music\New Rips" --analyze
+
 # 2. Analyze songs (extracts BPM, key, lyrics, mood, sections)
 python -m mixer analyze <song-id>
 python -m mixer analyze --batch  # Analyze all unanalyzed songs

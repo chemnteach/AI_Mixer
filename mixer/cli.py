@@ -63,41 +63,176 @@ def main(ctx: click.Context, config: Path | None, verbose: bool) -> None:
 
 
 @main.command()
-@click.argument('input_source')
+@click.argument('input_source', required=False)
+@click.option(
+    '--folder',
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help='Ingest all audio files from a folder'
+)
+@click.option(
+    '--analyze',
+    is_flag=True,
+    help='Automatically analyze songs after ingestion'
+)
 @click.pass_context
-def ingest(ctx: click.Context, input_source: str) -> None:
-    """Ingest audio from YouTube URL or local file.
+def ingest(ctx: click.Context, input_source: str | None, folder: str | None, analyze: bool) -> None:
+    """Ingest audio from YouTube URL, local file, or folder.
 
-    INPUT_SOURCE: YouTube URL or path to audio file
+    INPUT_SOURCE: YouTube URL or path to audio file (if not using --folder)
     """
-    console.print(Panel.fit(
-        f"[bold cyan]Ingesting:[/bold cyan] {input_source}",
-        border_style="cyan"
-    ))
+    from pathlib import Path
 
-    try:
+    # Validate arguments
+    if not input_source and not folder:
+        console.print("[red]Error: Provide INPUT_SOURCE or use --folder[/red]")
+        sys.exit(1)
+
+    if input_source and folder:
+        console.print("[red]Error: Cannot use both INPUT_SOURCE and --folder[/red]")
+        sys.exit(1)
+
+    # Single file/URL mode
+    if input_source:
+        console.print(Panel.fit(
+            f"[bold cyan]Ingesting:[/bold cyan] {input_source}",
+            border_style="cyan"
+        ))
+
+        try:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console
+            ) as progress:
+                task = progress.add_task("Downloading and processing...", total=None)
+
+                result = ingest_song(input_source)
+
+                progress.update(task, description="✓ Complete")
+
+            if result["cached"]:
+                console.print(f"[yellow]⚠ Song already in library:[/yellow] {result['id']}")
+            else:
+                console.print(f"[green]✓ Successfully ingested:[/green] {result['id']}")
+
+            console.print(f"[dim]Path:[/dim] {result['path']}")
+            console.print(f"[dim]Source:[/dim] {result['source']}")
+
+            # Auto-analyze if requested
+            if analyze:
+                console.print("\n[bold cyan]Analyzing song...[/bold cyan]")
+                try:
+                    from mixer.agents import profile_audio
+                    song_data = get_song(result['id'])
+                    if song_data:
+                        profile_audio(song_data['metadata']['path'])
+                        console.print(f"[green]✓ Analysis complete![/green]")
+                except Exception as e:
+                    console.print(f"[yellow]⚠ Analysis failed:[/yellow] {e}")
+
+        except IngestionError as e:
+            console.print(f"[red]✗ Ingestion failed:[/red] {e}")
+            sys.exit(1)
+
+    # Batch folder mode
+    else:
+        folder_path = Path(folder)
+
+        console.print(Panel.fit(
+            f"[bold cyan]Batch Ingesting from:[/bold cyan] {folder_path}",
+            border_style="cyan"
+        ))
+
+        # Find all audio files
+        audio_extensions = {'.mp3', '.wav', '.flac', '.m4a', '.ogg'}
+        audio_files = []
+
+        for ext in audio_extensions:
+            audio_files.extend(folder_path.glob(f"*{ext}"))
+            audio_files.extend(folder_path.glob(f"*{ext.upper()}"))
+
+        if not audio_files:
+            console.print(f"[yellow]No audio files found in {folder_path}[/yellow]")
+            return
+
+        console.print(f"Found {len(audio_files)} audio files\n")
+
+        # Ingest each file
+        ingested = []
+        skipped = []
+        failed = []
+
         with Progress(
             SpinnerColumn(),
             TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
             console=console
         ) as progress:
-            task = progress.add_task("Downloading and processing...", total=None)
+            task = progress.add_task("Ingesting files...", total=len(audio_files))
 
-            result = ingest_song(input_source)
+            for audio_file in audio_files:
+                progress.update(task, description=f"Ingesting: {audio_file.name}")
 
-            progress.update(task, description="✓ Complete")
+                try:
+                    result = ingest_song(str(audio_file))
 
-        if result["cached"]:
-            console.print(f"[yellow]⚠ Song already in library:[/yellow] {result['id']}")
-        else:
-            console.print(f"[green]✓ Successfully ingested:[/green] {result['id']}")
+                    if result["cached"]:
+                        skipped.append(audio_file.name)
+                    else:
+                        ingested.append(result['id'])
 
-        console.print(f"[dim]Path:[/dim] {result['path']}")
-        console.print(f"[dim]Source:[/dim] {result['source']}")
+                except Exception as e:
+                    failed.append((audio_file.name, str(e)))
 
-    except IngestionError as e:
-        console.print(f"[red]✗ Ingestion failed:[/red] {e}")
-        sys.exit(1)
+                progress.advance(task)
+
+        # Summary
+        console.print("\n[bold]Ingestion Summary:[/bold]")
+        console.print(f"  [green]✓ Ingested:[/green] {len(ingested)}")
+        console.print(f"  [yellow]⚠ Skipped (already in library):[/yellow] {len(skipped)}")
+        console.print(f"  [red]✗ Failed:[/red] {len(failed)}")
+
+        if failed:
+            console.print("\n[bold red]Failed files:[/bold red]")
+            for filename, error in failed:
+                console.print(f"  - {filename}: {error}")
+
+        # Auto-analyze if requested
+        if analyze and ingested:
+            console.print("\n[bold cyan]Analyzing ingested songs...[/bold cyan]")
+
+            from mixer.agents import profile_audio
+
+            analyzed = 0
+            analysis_failed = 0
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                console=console
+            ) as progress:
+                task = progress.add_task("Analyzing...", total=len(ingested))
+
+                for song_id in ingested:
+                    progress.update(task, description=f"Analyzing: {song_id}")
+
+                    try:
+                        song_data = get_song(song_id)
+                        if song_data:
+                            profile_audio(song_data['metadata']['path'])
+                            analyzed += 1
+                    except Exception as e:
+                        analysis_failed += 1
+                        console.print(f"[yellow]⚠ Analysis failed for {song_id}:[/yellow] {e}")
+
+                    progress.advance(task)
+
+            console.print(f"\n[green]✓ Analyzed {analyzed} songs[/green]")
+            if analysis_failed:
+                console.print(f"[yellow]⚠ {analysis_failed} analysis failures[/yellow]")
 
 
 @main.command()

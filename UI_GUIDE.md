@@ -78,7 +78,7 @@ Manage your song collection with three sub-tabs:
   - **Delete** - Remove from library (double-click to confirm)
 
 #### Ingest
-Two ways to add songs:
+Three ways to add songs:
 
 **Upload File:**
 - Supported formats: MP3, WAV, FLAC
@@ -90,10 +90,19 @@ Two ways to add songs:
 - Audio extracted automatically
 - Cached for future use
 
+**Batch Folder:** ⭐ NEW!
+- Perfect for CD rips or large music collections
+- Paste folder path (e.g., `C:\Users\YourName\Music\New Rips`)
+- Supports: MP3, WAV, FLAC, M4A, OGG
+- Auto-analyze all songs after ingestion
+- Progress bar shows ingestion status
+- Summary shows ingested/skipped/failed counts
+
 **Tips:**
 - Always check "Analyze now?" for better mashups
 - Upload diverse genres for interesting combinations
 - YouTube URLs work with music videos, live performances, etc.
+- Use Batch Folder for CD rips - rip with Windows Media Player first, then batch ingest
 
 #### Stats
 Visual analytics for your library:
@@ -285,6 +294,25 @@ Watch for:
 7. Listen to how lyrical themes align
 
 **Time:** ~5 minutes
+
+### Workflow 5: Batch Ingest CD Collection ⭐ NEW!
+1. Rip CD with Windows Media Player to `C:\Users\YourName\Music\Album Name`
+2. Open The Mixer web UI
+3. Go to **Library** tab → **Ingest** sub-tab
+4. Select **Batch Folder** mode
+5. Paste folder path: `C:\Users\YourName\Music\Album Name`
+6. Check "Analyze all songs after ingestion?"
+7. Click **Batch Ingest Folder**
+8. Watch progress bar as songs are ingested and analyzed
+9. View summary (ingested/skipped/failed counts)
+10. Repeat for more CDs!
+
+**Time:** ~2-5 minutes per CD (depending on number of tracks and analysis)
+
+**Perfect for:**
+- Building library from CD collection
+- Processing folder of downloaded music
+- Migrating existing music library
 
 ## FAQ
 

@@ -388,7 +388,7 @@ def ingest_interface():
 
     ingest_mode = st.radio(
         "Ingest Mode",
-        ["Upload File", "YouTube URL"],
+        ["Upload File", "YouTube URL", "Batch Folder"],
         horizontal=True
     )
 
@@ -424,7 +424,7 @@ def ingest_interface():
             finally:
                 Path(temp_path).unlink(missing_ok=True)
 
-    else:  # YouTube URL
+    elif ingest_mode == "YouTube URL":
         youtube_url = st.text_input(
             "YouTube URL",
             placeholder="https://www.youtube.com/watch?v=...",
@@ -451,6 +451,125 @@ def ingest_interface():
 
             except Exception as e:
                 st.error(f"❌ Ingestion failed: {str(e)}")
+
+    else:  # Batch Folder
+        st.markdown("""
+        **Batch ingest all audio files from a folder** (perfect for CD rips!)
+
+        Supported formats: MP3, WAV, FLAC, M4A, OGG
+        """)
+
+        folder_path = st.text_input(
+            "Folder Path",
+            placeholder=r"C:\Users\YourName\Music\New Rips",
+            help="Enter the full path to a folder containing audio files"
+        )
+
+        auto_analyze = st.checkbox(
+            "Analyze all songs after ingestion?",
+            value=True,
+            key="batch_analyze",
+            help="Recommended: Extract BPM, key, lyrics, and sections for better mashups"
+        )
+
+        if folder_path and st.button("📥 Batch Ingest Folder"):
+            folder = Path(folder_path)
+
+            if not folder.exists():
+                st.error(f"❌ Folder does not exist: {folder_path}")
+                return
+
+            if not folder.is_dir():
+                st.error(f"❌ Path is not a folder: {folder_path}")
+                return
+
+            # Find audio files
+            audio_extensions = {'.mp3', '.wav', '.flac', '.m4a', '.ogg'}
+            audio_files = []
+
+            for ext in audio_extensions:
+                audio_files.extend(folder.glob(f"*{ext}"))
+                audio_files.extend(folder.glob(f"*{ext.upper()}"))
+
+            if not audio_files:
+                st.warning(f"⚠️ No audio files found in {folder_path}")
+                return
+
+            st.info(f"Found {len(audio_files)} audio files")
+
+            # Ingest files
+            ingested = []
+            skipped = []
+            failed = []
+
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+
+            for i, audio_file in enumerate(audio_files):
+                status_text.text(f"Ingesting: {audio_file.name}")
+
+                try:
+                    result = ingest_song(str(audio_file))
+
+                    if result['cached']:
+                        skipped.append(audio_file.name)
+                    else:
+                        ingested.append(result['id'])
+
+                except Exception as e:
+                    failed.append((audio_file.name, str(e)))
+
+                progress_bar.progress((i + 1) / len(audio_files))
+
+            status_text.empty()
+            progress_bar.empty()
+
+            # Summary
+            st.markdown("### Ingestion Summary")
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("✅ Ingested", len(ingested))
+            with col2:
+                st.metric("⚠️ Skipped", len(skipped))
+            with col3:
+                st.metric("❌ Failed", len(failed))
+
+            if failed:
+                with st.expander("Show failed files"):
+                    for filename, error in failed:
+                        st.text(f"- {filename}: {error}")
+
+            # Auto-analyze
+            if auto_analyze and ingested:
+                st.markdown("### Analyzing Songs")
+
+                analyzed = 0
+                analysis_failed = 0
+
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+
+                for i, song_id in enumerate(ingested):
+                    status_text.text(f"Analyzing: {song_id}")
+
+                    try:
+                        song_data = get_song(song_id)
+                        if song_data:
+                            profile_audio(song_data['metadata']['cache_path'])
+                            analyzed += 1
+                    except Exception as e:
+                        analysis_failed += 1
+
+                    progress_bar.progress((i + 1) / len(ingested))
+
+                status_text.empty()
+                progress_bar.empty()
+
+                st.success(f"✅ Analyzed {analyzed} songs")
+                if analysis_failed:
+                    st.warning(f"⚠️ {analysis_failed} analysis failures")
+
+            st.success("🎉 Batch ingestion complete!")
 
 
 def library_stats():
