@@ -336,9 +336,47 @@ This tool is intended for:
 - Complying with YouTube Terms of Service
 - Not distributing copyrighted mashups without permission
 
+## Future Expansion: Crossfade Club Visual DJ System
+
+**Status:** Design phase - PRD complete, implementation not yet started
+
+A major expansion is planned to convert Mixer audio mashups into platform-optimized video content featuring an animated cartoon DJ avatar.
+
+**See:** `CROSSFADE_CLUB_PRD.md` - Complete product requirements (35 sections)
+
+**Architecture:**
+```
+Mixer (audio) → Director Agent (visual intelligence) → Blender (3D animation) → FFmpeg (encoding) → Platform variants
+```
+
+**Key Features:**
+- Two audio modes: mashup (creative) + single-song/event (formatted)
+- Event-safe guardrails for client deliverables with usage manifests
+- Automated batch video generation (TikTok/Reels/Shorts 9:16, YouTube 16:9)
+- Animated DJ avatar with beat-synced actions (deck scratch, crossfader hit, drop reaction)
+- Theme system (lighting presets, studio variants)
+- Caption burn-in with platform-specific styling
+
+**MVP Scope:**
+- Base avatar with 5 core actions
+- Single studio environment
+- 4 themes (sponsor_neon, award_elegant, mashup_chaos, chill_lofi)
+- Automated rendering pipeline
+
+**Future Enhancements (Documented):**
+- Wardrobe system (outfit swapping per song/season)
+- Props system (sunglasses, headphones, glow sticks)
+- Multiple avatar characters
+
+This expansion would enable The Mixer to produce complete social media content, not just audio mashups.
+
+---
+
 ## Documentation References
 
-- **PRD.md**: Complete product requirements and technical specifications (1360+ lines)
+- **PRD.md**: Complete product requirements for audio system (1360+ lines)
+- **CROSSFADE_CLUB_PRD.md**: Visual DJ system expansion PRD (35 sections)
+- **UI_GUIDE.md**: Comprehensive web UI usage guide with workflows
 - **CONTINUITY.md**: Detailed project state, architecture decisions, session history
 - **README.md**: User-facing quick start and feature overview
 - **Handoff documents**: `thoughts/shared/handoffs/general/*.yaml` - Detailed session outcomes
