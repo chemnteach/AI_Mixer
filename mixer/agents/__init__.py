@@ -13,6 +13,14 @@ from mixer.agents.analyst import (
     AnalysisError,
 )
 
+from mixer.agents.curator import (
+    find_match,
+    calculate_compatibility_score,
+    recommend_mashup_type,
+    find_all_pairs,
+    CuratorError,
+)
+
 from mixer.agents.engineer import (
     create_classic_mashup,
     create_stem_swap_mashup,
@@ -37,6 +45,12 @@ __all__ = [
     # Analysis
     "profile_audio",
     "AnalysisError",
+    # Curation
+    "find_match",
+    "calculate_compatibility_score",
+    "recommend_mashup_type",
+    "find_all_pairs",
+    "CuratorError",
     # Engineering
     "create_classic_mashup",
     "create_stem_swap_mashup",

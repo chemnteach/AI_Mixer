@@ -31,6 +31,16 @@ curator:
   default_match_criteria: "hybrid"
   max_candidates: 5
 
+  # Compatibility scoring weights (must sum to ~1.0)
+  weight_bpm: 0.35      # BPM proximity importance
+  weight_key: 0.30      # Key compatibility importance
+  weight_energy: 0.20   # Energy alignment importance
+  weight_genre: 0.15    # Genre similarity importance
+
+  # Batch recommendations
+  min_compatibility: 0.5  # Minimum score for pair recommendations
+  max_pairs: 10           # Maximum pairs to return in batch mode
+
 engineer:
   default_quality: "high"  # draft | high | broadcast
   vocal_attenuation_db: -2  # How much quieter vocals vs instrumental

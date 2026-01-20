@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-19 (Session 3)
+**Last Updated:** 2026-01-19 (Session 4)
 **Project:** The Mixer - AI-powered audio mashup pipeline
-**Current Phase:** Phase 3E Complete (All 8 Mashup Types) → Phase 4 Next
+**Current Phase:** Phase 4 Complete (Curator Agent) → Phase 5 Next
 
 ---
 
@@ -18,8 +18,8 @@
 - ✅ **Phase 3C: Energy-Based Mashups** (Complete 2026-01-19 - Energy Match, Adaptive Harmony)
 - ✅ **Phase 3D: Semantic Mashups** (Complete 2026-01-19 - Theme Fusion, Semantic-Aligned)
 - ✅ **Phase 3E: Interactive Mashups** (Complete 2026-01-19 - Role-Aware, Conversational)
-- ⏳ **Phase 4: Curator Agent** (Next - Intelligent song pairing and compatibility ranking)
-- ⏸️ Phase 5: LangGraph Workflow
+- ✅ **Phase 4: Curator Agent** (Complete 2026-01-19 - Intelligent song pairing, compatibility scoring, mashup type recommendation)
+- ⏳ **Phase 5: LangGraph Workflow** (Next - Multi-agent orchestration for end-to-end pipeline)
 - ⏸️ Phase 6: CLI Refinement
 - ⏸️ Phase 7: Testing & QA
 
@@ -55,6 +55,12 @@
 - `tests/unit/test_engineer.py` - 34 unit tests (phases 3B-3D)
 - `tests/unit/test_engineer_phase3e.py` - 14 unit tests (phase 3E)
 - Features: 8 mashup types (classic, stem swap, energy match, adaptive harmony, theme fusion, semantic aligned, role-aware, conversational)
+
+**Curator Agent (Phase 4):**
+- `mixer/agents/curator.py` - Song pairing and compatibility analysis (190 lines, 94% coverage)
+- `tests/unit/test_curator.py` - 19 unit tests
+- Features: harmonic/semantic/hybrid matching, weighted compatibility scoring (BPM/key/energy/genre), mashup type recommendation, batch pair discovery
+- Functions: `find_match()`, `calculate_compatibility_score()`, `recommend_mashup_type()`, `find_all_pairs()`
 
 **Types:**
 - `mixer/types.py` - TypedDict definitions for Config, SongMetadata, SectionMetadata, MashupType, etc.
@@ -94,6 +100,10 @@
 | Pydub for mixing/export | Simple API, reliable ffmpeg wrapper | 2026-01-19 |
 | Lyrical function pairing | Question→answer, narrative→reflection for semantic mashups | 2026-01-19 |
 | Case-insensitive theme matching | More robust theme fusion matching | 2026-01-19 |
+| Weighted compatibility scoring | BPM (35%), key (30%), energy (20%), genre (15%) balances factors | 2026-01-19 |
+| Curator wraps existing queries | Reuse Phase 1 query_harmonic/semantic/hybrid infrastructure | 2026-01-19 |
+| Configurable weight overrides | Allow user customization via config.yaml or function args | 2026-01-19 |
+| Mashup type recommendation | Decision tree based on song characteristics (vocals, key distance, sections) | 2026-01-19 |
 
 ### Advanced Mashup Types (Phase 3+)
 

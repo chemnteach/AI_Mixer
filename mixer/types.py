@@ -188,6 +188,23 @@ class MatchResult(TypedDict):
     match_reasons: List[str]
 
 
+class MashupRecommendation(TypedDict):
+    """Recommended mashup type with reasoning."""
+    mashup_type: str  # "CLASSIC" | "STEM_SWAP" | etc.
+    confidence: float  # 0.0-1.0
+    reasoning: str
+    config_suggestion: dict  # Suggested MashupConfig fields
+
+
+class PairRecommendation(TypedDict):
+    """Complete recommendation for a song pair."""
+    song_a_id: str
+    song_b_id: str
+    compatibility_score: float
+    match_reasons: List[str]
+    recommended_mashup: MashupRecommendation
+
+
 class LLMAnalysis(TypedDict):
     """LLM-generated analysis."""
     genres: List[str]

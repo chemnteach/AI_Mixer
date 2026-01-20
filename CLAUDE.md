@@ -73,8 +73,8 @@ The system is organized around **4 main agents** that form a pipeline:
 
 1. **Ingestion Agent** (`mixer/agents/ingestion.py`) - Downloads/caches audio from YouTube URLs or local files, validates format, converts to standard WAV
 2. **Analyst Agent** (`mixer/agents/analyst.py`) - Extracts section-level metadata (verse/chorus boundaries, energy curves, vocal analysis, semantic analysis via LLM)
-3. **Curator Agent** (not yet implemented) - Finds compatible song pairs using hybrid matching (harmonic + semantic)
-4. **Engineer Agent** (not yet implemented) - Builds final mashup with stem separation and alignment
+3. **Curator Agent** (`mixer/agents/curator.py`) - Finds compatible song pairs using hybrid matching (harmonic + semantic), calculates compatibility scores with weighted BPM/key/energy/genre factors, recommends optimal mashup types based on song characteristics
+4. **Engineer Agent** (`mixer/agents/engineer.py`) - Builds final mashup with stem separation and alignment (8 mashup types implemented)
 
 ### Memory System (ChromaDB)
 
@@ -222,20 +222,20 @@ library_cache = config.get_path("library_cache")
 
 ## Project State & Phases
 
-**Current Status**: Phase 3E Complete (All 8 Mashup Types) → Phase 4 Next
+**Current Status**: Phase 4 Complete (Curator Agent) → Phase 5 Next
 
 **Completed**:
 - ✅ Phase 0: Foundation (directory structure, config, logging, CLI skeleton)
 - ✅ Phase 1: Memory System (ChromaDB integration, 47 unit tests)
 - ✅ Phase 2: Ingestion Agent (local files + YouTube, 22 unit tests)
 - ✅ Phase 3A: Enhanced Analyst Agent (section-level metadata, 10 unit tests)
-- ✅ Phase 3B: Simple Mashup Types (Classic, Stem Swap)
-- ✅ Phase 3C: Energy-Based Mashups (Energy Match, Adaptive Harmony)
-- ✅ Phase 3D: Semantic Mashups (Theme Fusion, Semantic-Aligned)
+- ✅ Phase 3B: Simple Mashup Types (Classic, Stem Swap, 16 unit tests)
+- ✅ Phase 3C: Energy-Based Mashups (Energy Match, Adaptive Harmony, 13 unit tests)
+- ✅ Phase 3D: Semantic Mashups (Theme Fusion, Semantic-Aligned, 5 unit tests)
 - ✅ Phase 3E: Interactive Mashups (Role-Aware, Conversational, 14 unit tests)
+- ✅ Phase 4: Curator Agent (intelligent song pairing, compatibility scoring, mashup type recommendation, 19 unit tests, 94% coverage)
 
 **Future Phases**:
-- Phase 4: Curator Agent (intelligent song selection and compatibility ranking)
 - Phase 5: LangGraph Workflow (multi-agent orchestration for end-to-end pipeline)
 - Phase 6: CLI Refinement (production-ready command-line interface)
 - Phase 7: Testing & QA (integration tests, real-world song testing)
@@ -251,6 +251,8 @@ library_cache = config.get_path("library_cache")
 | `mixer/memory/schema.py` | ID sanitization and metadata validation |
 | `mixer/agents/ingestion.py` | Audio ingestion from files/YouTube |
 | `mixer/agents/analyst.py` | Section-level metadata extraction |
+| `mixer/agents/curator.py` | Song pairing, compatibility scoring, mashup type recommendation |
+| `mixer/agents/engineer.py` | All 8 mashup implementations (classic, stem swap, energy, adaptive, theme, semantic, role-aware, conversational) |
 | `mixer/audio/analysis.py` | Signal processing and section detection |
 | `mixer/llm/semantic.py` | LLM-based semantic analysis |
 | `config.yaml` | User-editable configuration |
