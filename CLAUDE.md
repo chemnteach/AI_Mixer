@@ -222,7 +222,7 @@ library_cache = config.get_path("library_cache")
 
 ## Project State & Phases
 
-**Current Status**: Phase 4 Complete (Curator Agent) → Phase 5 Next
+**Current Status**: Phase 5 Complete (LangGraph Workflow) → Phase 6 Next
 
 **Completed**:
 - ✅ Phase 0: Foundation (directory structure, config, logging, CLI skeleton)
@@ -234,9 +234,9 @@ library_cache = config.get_path("library_cache")
 - ✅ Phase 3D: Semantic Mashups (Theme Fusion, Semantic-Aligned, 5 unit tests)
 - ✅ Phase 3E: Interactive Mashups (Role-Aware, Conversational, 14 unit tests)
 - ✅ Phase 4: Curator Agent (intelligent song pairing, compatibility scoring, mashup type recommendation, 19 unit tests, 94% coverage)
+- ✅ Phase 5: LangGraph Workflow (multi-agent orchestration, state machine, human-in-the-loop, 25 unit tests, 68-73% coverage)
 
 **Future Phases**:
-- Phase 5: LangGraph Workflow (multi-agent orchestration for end-to-end pipeline)
 - Phase 6: CLI Refinement (production-ready command-line interface)
 - Phase 7: Testing & QA (integration tests, real-world song testing)
 
@@ -253,6 +253,9 @@ library_cache = config.get_path("library_cache")
 | `mixer/agents/analyst.py` | Section-level metadata extraction |
 | `mixer/agents/curator.py` | Song pairing, compatibility scoring, mashup type recommendation |
 | `mixer/agents/engineer.py` | All 8 mashup implementations (classic, stem swap, energy, adaptive, theme, semantic, role-aware, conversational) |
+| `mixer/workflow/state.py` | LangGraph workflow state definitions (MashupState, WorkflowStatus) |
+| `mixer/workflow/nodes.py` | Workflow node functions that wrap agents |
+| `mixer/workflow/graph.py` | LangGraph workflow graph definition and execution |
 | `mixer/audio/analysis.py` | Signal processing and section detection |
 | `mixer/llm/semantic.py` | LLM-based semantic analysis |
 | `config.yaml` | User-editable configuration |

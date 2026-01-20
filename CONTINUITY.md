@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-19 (Session 4)
+**Last Updated:** 2026-01-19 (Session 5)
 **Project:** The Mixer - AI-powered audio mashup pipeline
-**Current Phase:** Phase 4 Complete (Curator Agent) → Phase 5 Next
+**Current Phase:** Phase 5 Complete (LangGraph Workflow) → Phase 6 Next
 
 ---
 
@@ -19,8 +19,8 @@
 - ✅ **Phase 3D: Semantic Mashups** (Complete 2026-01-19 - Theme Fusion, Semantic-Aligned)
 - ✅ **Phase 3E: Interactive Mashups** (Complete 2026-01-19 - Role-Aware, Conversational)
 - ✅ **Phase 4: Curator Agent** (Complete 2026-01-19 - Intelligent song pairing, compatibility scoring, mashup type recommendation)
-- ⏳ **Phase 5: LangGraph Workflow** (Next - Multi-agent orchestration for end-to-end pipeline)
-- ⏸️ Phase 6: CLI Refinement
+- ✅ **Phase 5: LangGraph Workflow** (Complete 2026-01-19 - Multi-agent orchestration, state machine, human-in-the-loop)
+- ⏳ **Phase 6: CLI Refinement** (Next - Production-ready command-line interface)
 - ⏸️ Phase 7: Testing & QA
 
 ### Key Files & Architecture
@@ -61,6 +61,14 @@
 - `tests/unit/test_curator.py` - 19 unit tests
 - Features: harmonic/semantic/hybrid matching, weighted compatibility scoring (BPM/key/energy/genre), mashup type recommendation, batch pair discovery
 - Functions: `find_match()`, `calculate_compatibility_score()`, `recommend_mashup_type()`, `find_all_pairs()`
+
+**LangGraph Workflow (Phase 5):**
+- `mixer/workflow/state.py` - Workflow state definitions (MashupState TypedDict, WorkflowStatus enum)
+- `mixer/workflow/nodes.py` - Agent node functions (201 lines, 73% coverage)
+- `mixer/workflow/graph.py` - Workflow graph definition and execution (66 lines, 68% coverage)
+- `tests/unit/test_workflow.py` - 25 unit tests
+- Features: multi-agent orchestration, state machine, conditional routing, error handling with retry, human-in-the-loop approval, progress streaming
+- Nodes: ingest_song_a, analyze_song_a, ingest_song_b, analyze_song_b, find_matches, await_user_selection, recommend_mashup_type, await_mashup_approval, create_mashup, error_handler
 
 **Types:**
 - `mixer/types.py` - TypedDict definitions for Config, SongMetadata, SectionMetadata, MashupType, etc.
@@ -104,6 +112,14 @@
 | Curator wraps existing queries | Reuse Phase 1 query_harmonic/semantic/hybrid infrastructure | 2026-01-19 |
 | Configurable weight overrides | Allow user customization via config.yaml or function args | 2026-01-19 |
 | Mashup type recommendation | Decision tree based on song characteristics (vocals, key distance, sections) | 2026-01-19 |
+| LangGraph for workflow orchestration | Proven library for agent state machines with built-in error handling | 2026-01-19 |
+| TypedDict for workflow state | Type-safe state with clear field definitions | 2026-01-19 |
+| Node functions wrap agents | Each node calls one agent and updates state (separation of concerns) | 2026-01-19 |
+| Conditional edges for routing | Dynamic workflow paths based on state (song B provided vs curator match) | 2026-01-19 |
+| Human-in-the-loop nodes | Workflow pauses for user input (match selection, mashup approval) | 2026-01-19 |
+| Auto-selection fallback | Auto-select top match if user doesn't respond (graceful degradation) | 2026-01-19 |
+| Progress message accumulation | List of human-readable messages for streaming display | 2026-01-19 |
+| Error handler with retry | Max 3 retries before workflow fails | 2026-01-19 |
 
 ### Advanced Mashup Types (Phase 3+)
 
