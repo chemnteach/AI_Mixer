@@ -140,7 +140,25 @@ cp .env.template .env
 
 ### Usage
 
-**Fully Automated Workflow (Recommended):**
+**Web UI (Recommended for ease of use):**
+```bash
+# Install UI dependencies
+pip install streamlit
+
+# Launch web interface
+streamlit run mixer_ui.py
+
+# Opens in browser at http://localhost:8501
+```
+
+The web UI provides:
+- 🎵 **Create Mashup:** Upload songs, select mashup type, auto-matching
+- 📚 **Library Management:** Browse, search, ingest, analyze songs
+- ⚙️ **Settings:** View configuration and system stats
+- 🎨 **8 Mashup Types:** All types accessible via dropdown
+- 📊 **Visual Stats:** Genre/key distribution, library analytics
+
+**CLI - Fully Automated Workflow:**
 ```bash
 # One-step mashup creation with auto-matching
 python -m mixer auto path/to/song.mp3
@@ -223,9 +241,11 @@ AI_Mixer/
 │   ├── audio/          # Audio processing (librosa, whisper, demucs)
 │   ├── memory/         # ChromaDB interface
 │   ├── llm/            # LLM integration (Anthropic, OpenAI)
+│   ├── workflow/       # LangGraph orchestration
 │   ├── utils/          # Utilities (logging, validation, etc.)
 │   ├── cli.py          # Command-line interface
 │   └── config.py       # Configuration management
+├── mixer_ui.py         # Streamlit web interface (600+ lines)
 ├── tests/              # Unit and integration tests
 ├── scripts/            # Setup and utility scripts
 ├── config.yaml         # User configuration

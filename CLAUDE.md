@@ -52,13 +52,32 @@ black mixer/ tests/
 mypy mixer/
 ```
 
+### Web UI (Recommended)
+
+```bash
+# Launch Streamlit web interface
+streamlit run mixer_ui.py
+
+# Opens browser at http://localhost:8501
+```
+
+**Features:**
+- 🎵 Create Mashup tab (automatic/manual modes, all 8 mashup types)
+- 📚 Library Management (browse, search, ingest, analyze, stats)
+- ⚙️ Settings (view configuration)
+- Rich visual interface with file upload, audio players, charts
+
+**File:** `mixer_ui.py` (600+ lines, complete Streamlit interface)
+
+See `UI_GUIDE.md` for detailed usage instructions.
+
 ### CLI Usage
 
 ```bash
 # CLI entry point
 python -m mixer --help
 
-# Fully automated workflow (recommended)
+# Fully automated workflow
 python -m mixer auto path/to/song.mp3
 python -m mixer interactive  # Guided mode with prompts
 
@@ -267,6 +286,7 @@ library_cache = config.get_path("library_cache")
 | `mixer/workflow/nodes.py` | Workflow node functions that wrap agents |
 | `mixer/workflow/graph.py` | LangGraph workflow graph definition and execution |
 | `mixer/cli.py` | Production-ready CLI with all commands (ingest, analyze, match, mashup, library, auto, interactive) |
+| `mixer_ui.py` | Streamlit web interface (600+ lines) with Create Mashup, Library, and Settings tabs |
 | `mixer/audio/analysis.py` | Signal processing and section detection |
 | `mixer/llm/semantic.py` | LLM-based semantic analysis |
 | `tests/unit/` | 170+ unit tests across all modules |

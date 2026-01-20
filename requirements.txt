@@ -39,6 +39,9 @@ python-dotenv>=1.0.0
 click>=8.1.0
 rich>=13.0.0
 
+# UI (Optional - only needed for web interface)
+streamlit>=1.28.0
+
 # Development
 pytest>=7.4.0
 pytest-cov>=4.1.0
