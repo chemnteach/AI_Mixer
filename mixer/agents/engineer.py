@@ -1091,3 +1091,524 @@ def create_semantic_aligned_mashup(
         raise
     except Exception as e:
         raise EngineerError(f"Semantic-aligned mashup creation failed: {e}")
+
+
+def create_role_aware_mashup(
+    song_a_id: str,
+    song_b_id: str,
+    output_path: Optional[str] = None,
+    quality: Optional[QualityPreset] = None,
+    output_format: Optional[OutputFormat] = None
+) -> str:
+    """
+    Create role-aware mashup: Vocals dynamically shift between lead, harmony, call, response.
+
+    Analyzes vocal characteristics (density, intensity) from section metadata and
+    assigns roles to each section. Processes vocals accordingly with role-based
+    mixing: lead at full volume, harmony pitch-shifted and attenuated, call/response
+    with temporal spacing.
+
+    Args:
+        song_a_id: First song ID
+        song_b_id: Second song ID
+        output_path: Output file path (auto-generated if None)
+        quality: "draft" | "high" | "broadcast" (from config if None)
+        output_format: "mp3" | "wav" (from config if None)
+
+    Returns:
+        Absolute path to exported mashup
+
+    Raises:
+        SongNotFoundError: If either song not found
+        EngineerError: If songs lack section metadata or creation fails
+    """
+    config = get_config()
+
+    if quality is None:
+        quality = config.get("engineer.default_quality", "high")
+    if output_format is None:
+        output_format = "mp3"
+
+    logger.info(f"=== Creating Role-Aware Mashup ===")
+    logger.info(f"Song A: {song_a_id}")
+    logger.info(f"Song B: {song_b_id}")
+
+    try:
+        # Load songs
+        audio_a, meta_a = _load_song_audio(song_a_id)
+        audio_b, meta_b = _load_song_audio(song_b_id)
+
+        # Check for section metadata
+        sections_a = meta_a.get("sections", [])
+        sections_b = meta_b.get("sections", [])
+
+        if not sections_a or not sections_b:
+            raise EngineerError(
+                "Songs must have section-level metadata. Run analyst agent first."
+            )
+
+        sr_a = meta_a.get("sample_rate", 44100)
+        sr_b = meta_b.get("sample_rate", 44100)
+
+        # Separate vocals from both songs
+        logger.info("Separating vocal stems...")
+        stems_a = separate_stems(
+            meta_a["path"],
+            model_name=config.get("models.demucs_model", "htdemucs"),
+            device=None
+        )
+        stems_b = separate_stems(
+            meta_b["path"],
+            model_name=config.get("models.demucs_model", "htdemucs"),
+            device=None
+        )
+
+        vocals_a = stems_a["vocals"]
+        vocals_b = stems_b["vocals"]
+
+        # Combine instrumentals from both songs
+        inst_a = combine_stems(stems_a, exclude=["vocals"])
+        inst_b = combine_stems(stems_b, exclude=["vocals"])
+
+        # Time-stretch song B to match song A's BPM
+        bpm_a = meta_a.get("bpm")
+        bpm_b = meta_b.get("bpm")
+
+        if not bpm_a or not bpm_b:
+            raise EngineerError("Songs must have BPM metadata")
+
+        stretch_ratio = _calculate_stretch_ratio(bpm_b, bpm_a)
+        vocals_b_stretched = time_stretch(vocals_b, sr_b, stretch_ratio, quality)
+        inst_b_stretched = time_stretch(inst_b, sr_b, stretch_ratio, quality)
+
+        # Assign roles to sections based on vocal characteristics
+        logger.info("Assigning vocal roles...")
+
+        def assign_role(section: dict) -> str:
+            """Assign role based on vocal characteristics."""
+            density = section.get("vocal_density", "medium")
+            intensity = section.get("vocal_intensity", 0.5)
+            lyrical_func = section.get("lyrical_function", "")
+
+            # Prioritize lyrical function for call/response
+            if lyrical_func == "question":
+                return "call"
+            elif lyrical_func == "answer":
+                return "response"
+            # Use density/intensity for lead/harmony/texture
+            elif density == "dense" and intensity > 0.6:
+                return "lead"
+            elif density == "medium" or (density == "dense" and intensity <= 0.6):
+                return "harmony"
+            else:  # sparse
+                return "texture"
+
+        # Build mashup with role-based processing
+        logger.info("Building role-aware structure...")
+        mashup_parts = []
+        target_sr = sr_a
+
+        # Interleave sections from both songs with role assignments
+        max_sections = max(len(sections_a), len(sections_b))
+
+        for i in range(max_sections):
+            section_a = sections_a[i] if i < len(sections_a) else None
+            section_b = sections_b[i] if i < len(sections_b) else None
+
+            # Process section from song A
+            if section_a:
+                role_a = assign_role(section_a)
+                start_sample = int(section_a["start_sec"] * sr_a)
+                end_sample = int(section_a["end_sec"] * sr_a)
+                vocal_section_a = vocals_a[start_sample:end_sample]
+                inst_section_a = inst_a[start_sample:end_sample]
+
+                # Process based on role
+                processed_a = _process_vocal_by_role(
+                    vocal_section_a,
+                    inst_section_a,
+                    role_a,
+                    sr_a
+                )
+
+                logger.info(
+                    f"A{i}: {section_a.get('section_type', 'unknown')} - "
+                    f"role={role_a} (density={section_a.get('vocal_density', 'unknown')})"
+                )
+
+                mashup_parts.append(processed_a)
+
+            # Process section from song B
+            if section_b:
+                role_b = assign_role(section_b)
+                start_sample_b = int(section_b["start_sec"] * sr_b)
+                end_sample_b = int(section_b["end_sec"] * sr_b)
+                vocal_section_b = vocals_b_stretched[start_sample_b:end_sample_b]
+                inst_section_b = inst_b_stretched[start_sample_b:end_sample_b]
+
+                # Process based on role
+                processed_b = _process_vocal_by_role(
+                    vocal_section_b,
+                    inst_section_b,
+                    role_b,
+                    sr_b
+                )
+
+                logger.info(
+                    f"B{i}: {section_b.get('section_type', 'unknown')} - "
+                    f"role={role_b} (density={section_b.get('vocal_density', 'unknown')})"
+                )
+
+                mashup_parts.append(processed_b)
+
+        # Concatenate all role-processed sections
+        logger.info("Concatenating role-aware sections...")
+        final_audio = np.concatenate(mashup_parts)
+
+        # Generate output path
+        if output_path is None:
+            output_dir = config.get_path("mashup_output")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = str(
+                output_dir / f"role_aware_{song_a_id}_x_{song_b_id}.{output_format}"
+            )
+
+        # Export
+        logger.info("Exporting role-aware mashup...")
+        from mixer.audio.processing import numpy_to_audiosegment
+        from pydub.effects import normalize
+
+        mashup_seg = numpy_to_audiosegment(final_audio, target_sr)
+        mashup_seg = normalize(mashup_seg, headroom=2.0)
+
+        # Ensure output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+        # Export
+        if output_format == "mp3":
+            mashup_seg.export(
+                output_path,
+                format="mp3",
+                bitrate="320k",
+                parameters=["-q:a", "0"]
+            )
+        elif output_format == "wav":
+            mashup_seg.export(
+                output_path,
+                format="wav",
+                parameters=["-ac", "2", "-ar", str(target_sr)]
+            )
+        else:
+            raise MashupConfigError(f"Unsupported output format: {output_format}")
+
+        logger.info(f"🎵 Role-aware mashup created: {output_path}")
+        return output_path
+
+    except (SongNotFoundError, ProcessingError) as e:
+        raise
+    except Exception as e:
+        raise EngineerError(f"Role-aware mashup creation failed: {e}")
+
+
+def _process_vocal_by_role(
+    vocal_audio: np.ndarray,
+    inst_audio: np.ndarray,
+    role: str,
+    sr: int
+) -> np.ndarray:
+    """
+    Process vocal section based on assigned role.
+
+    Args:
+        vocal_audio: Vocal audio segment
+        inst_audio: Instrumental audio segment
+        role: Assigned role ("lead", "harmony", "call", "response", "texture")
+        sr: Sample rate
+
+    Returns:
+        Processed audio with vocal and instrumental mixed
+    """
+    # Ensure both arrays are same length
+    min_len = min(len(vocal_audio), len(inst_audio))
+    vocal_audio = vocal_audio[:min_len]
+    inst_audio = inst_audio[:min_len]
+
+    if role == "lead":
+        # Full volume vocals + full instrumental
+        mixed = vocal_audio + inst_audio * 0.7
+
+    elif role == "harmony":
+        # Pitch-shifted +3 semitones, attenuated -6dB
+        try:
+            vocal_shifted = pitch_shift(vocal_audio, sr, n_steps=3)
+            vocal_shifted = vocal_shifted[:min_len]  # Ensure same length
+            mixed = vocal_shifted * 0.5 + inst_audio * 0.8  # -6dB ≈ 0.5x
+        except Exception:
+            # Fallback if pitch-shift fails
+            mixed = vocal_audio * 0.5 + inst_audio * 0.8
+
+    elif role == "call":
+        # Vocal + short silence after (0.3s)
+        silence_samples = int(0.3 * sr)
+        silence = np.zeros(silence_samples, dtype=np.float32)
+        mixed = vocal_audio * 1.0 + inst_audio * 0.6
+        mixed = np.concatenate([mixed, silence])
+
+    elif role == "response":
+        # Short silence before (0.2s) + vocal
+        silence_samples = int(0.2 * sr)
+        silence = np.zeros(silence_samples, dtype=np.float32)
+        mixed = vocal_audio * 1.0 + inst_audio * 0.6
+        mixed = np.concatenate([silence, mixed])
+
+    elif role == "texture":
+        # Heavily attenuated, rhythmic texture
+        mixed = vocal_audio * 0.3 + inst_audio * 0.9
+
+    else:
+        # Default: balanced mix
+        mixed = vocal_audio * 0.7 + inst_audio * 0.8
+
+    # Normalize to prevent clipping
+    max_val = np.abs(mixed).max()
+    if max_val > 0:
+        mixed = mixed / max_val * 0.95
+
+    return mixed
+
+
+def create_conversational_mashup(
+    song_a_id: str,
+    song_b_id: str,
+    output_path: Optional[str] = None,
+    quality: Optional[QualityPreset] = None,
+    output_format: Optional[OutputFormat] = None,
+    silence_duration_sec: float = 0.4
+) -> str:
+    """
+    Create conversational mashup: Songs talk to each other like a dialogue.
+
+    Detects question/answer patterns and statement/response pairs from section
+    metadata and arranges them with silence gaps to create realistic conversational
+    flow. Creates the effect of two singers having a dialogue.
+
+    Args:
+        song_a_id: First song ID (typically asks questions or makes statements)
+        song_b_id: Second song ID (typically answers or responds)
+        output_path: Output file path (auto-generated if None)
+        quality: "draft" | "high" | "broadcast" (from config if None)
+        output_format: "mp3" | "wav" (from config if None)
+        silence_duration_sec: Duration of silence between conversational turns (default: 0.4s)
+
+    Returns:
+        Absolute path to exported mashup
+
+    Raises:
+        SongNotFoundError: If either song not found
+        EngineerError: If songs lack section metadata or no conversational pairs found
+    """
+    config = get_config()
+
+    if quality is None:
+        quality = config.get("engineer.default_quality", "high")
+    if output_format is None:
+        output_format = "mp3"
+
+    logger.info(f"=== Creating Conversational Mashup ===")
+    logger.info(f"Song A: {song_a_id}")
+    logger.info(f"Song B: {song_b_id}")
+    logger.info(f"Silence gap: {silence_duration_sec}s")
+
+    try:
+        # Load songs
+        audio_a, meta_a = _load_song_audio(song_a_id)
+        audio_b, meta_b = _load_song_audio(song_b_id)
+
+        # Check for section metadata
+        sections_a = meta_a.get("sections", [])
+        sections_b = meta_b.get("sections", [])
+
+        if not sections_a or not sections_b:
+            raise EngineerError(
+                "Songs must have section-level metadata. Run analyst agent first."
+            )
+
+        sr_a = meta_a.get("sample_rate", 44100)
+        sr_b = meta_b.get("sample_rate", 44100)
+
+        # Separate vocals from both songs
+        logger.info("Separating vocal stems...")
+        stems_a = separate_stems(
+            meta_a["path"],
+            model_name=config.get("models.demucs_model", "htdemucs"),
+            device=None
+        )
+        stems_b = separate_stems(
+            meta_b["path"],
+            model_name=config.get("models.demucs_model", "htdemucs"),
+            device=None
+        )
+
+        vocals_a = stems_a["vocals"]
+        vocals_b = stems_b["vocals"]
+
+        # Create instrumental bed (blend both instrumentals)
+        inst_a = combine_stems(stems_a, exclude=["vocals"])
+        inst_b = combine_stems(stems_b, exclude=["vocals"])
+
+        # Time-stretch song B to match song A's BPM
+        bpm_a = meta_a.get("bpm")
+        bpm_b = meta_b.get("bpm")
+
+        if not bpm_a or not bpm_b:
+            raise EngineerError("Songs must have BPM metadata")
+
+        stretch_ratio = _calculate_stretch_ratio(bpm_b, bpm_a)
+        vocals_b_stretched = time_stretch(vocals_b, sr_b, stretch_ratio, quality)
+        inst_b_stretched = time_stretch(inst_b, sr_b, stretch_ratio, quality)
+
+        # Define conversational pairings
+        conversational_pairs = {
+            "question": ["answer", "reflection"],
+            "narrative": ["answer", "reflection", "narrative"],
+            "call": ["response"],
+            "hook": [],  # Hooks don't pair conversationally
+        }
+
+        # Build conversational dialogue
+        logger.info("Building conversational structure...")
+        dialogue_parts = []
+        instrumental_parts = []
+        used_b_indices = set()
+        silence_samples = int(silence_duration_sec * sr_a)
+        silence = np.zeros(silence_samples, dtype=np.float32)
+
+        for i, section_a in enumerate(sections_a):
+            func_a = section_a.get("lyrical_function", "")
+
+            # Extract vocal section from A
+            start_sample_a = int(section_a["start_sec"] * sr_a)
+            end_sample_a = int(section_a["end_sec"] * sr_a)
+            vocal_section_a = vocals_a[start_sample_a:end_sample_a]
+            inst_section_a = inst_a[start_sample_a:end_sample_a]
+
+            logger.info(
+                f"A{i}: {section_a.get('section_type', 'unknown')} - "
+                f"{func_a} \"{section_a.get('emotional_tone', 'unknown')}\""
+            )
+
+            # Add section A
+            dialogue_parts.append(vocal_section_a)
+            instrumental_parts.append(inst_section_a)
+
+            # Find conversational response from song B
+            target_funcs = conversational_pairs.get(func_a, [])
+
+            if target_funcs:
+                # Add "listening" silence
+                dialogue_parts.append(np.zeros_like(silence))
+                instrumental_parts.append(silence)
+
+                # Find best match from song B
+                best_match = None
+                for j, section_b in enumerate(sections_b):
+                    if j in used_b_indices:
+                        continue
+
+                    func_b = section_b.get("lyrical_function", "")
+                    if func_b in target_funcs:
+                        best_match = (j, section_b)
+                        break
+
+                if best_match:
+                    j, section_b = best_match
+                    used_b_indices.add(j)
+
+                    # Extract vocal section from B
+                    start_sample_b = int(section_b["start_sec"] * sr_b)
+                    end_sample_b = int(section_b["end_sec"] * sr_b)
+                    vocal_section_b = vocals_b_stretched[start_sample_b:end_sample_b]
+                    inst_section_b = inst_b_stretched[start_sample_b:end_sample_b]
+
+                    logger.info(
+                        f"  → B{j}: {section_b.get('section_type', 'unknown')} - "
+                        f"{func_b} \"{section_b.get('emotional_tone', 'unknown')}\" [PAIRED]"
+                    )
+
+                    # Add section B
+                    dialogue_parts.append(vocal_section_b)
+                    instrumental_parts.append(inst_section_b)
+
+                    # Add silence after response
+                    dialogue_parts.append(np.zeros_like(silence))
+                    instrumental_parts.append(silence)
+
+        if len(dialogue_parts) <= len(sections_a):
+            logger.warning(
+                "No conversational pairs found - mashup will be mostly song A. "
+                "Consider songs with complementary lyrical functions."
+            )
+
+        # Mix vocals with instrumental bed
+        logger.info("Mixing vocals with instrumental bed...")
+        final_parts = []
+
+        for vocal_part, inst_part in zip(dialogue_parts, instrumental_parts):
+            # Ensure same length
+            min_len = min(len(vocal_part), len(inst_part))
+            vocal_trimmed = vocal_part[:min_len]
+            inst_trimmed = inst_part[:min_len]
+
+            # Mix: vocals prominent, instrumental as bed
+            mixed_part = vocal_trimmed * 1.0 + inst_trimmed * 0.4
+            final_parts.append(mixed_part)
+
+        # Concatenate all dialogue sections
+        logger.info("Concatenating conversational sections...")
+        final_audio = np.concatenate(final_parts)
+
+        # Generate output path
+        if output_path is None:
+            output_dir = config.get_path("mashup_output")
+            output_dir.mkdir(parents=True, exist_ok=True)
+            output_path = str(
+                output_dir / f"conversational_{song_a_id}_x_{song_b_id}.{output_format}"
+            )
+
+        # Export
+        logger.info("Exporting conversational mashup...")
+        from mixer.audio.processing import numpy_to_audiosegment
+        from pydub.effects import normalize
+
+        mashup_seg = numpy_to_audiosegment(final_audio, sr_a)
+        mashup_seg = normalize(mashup_seg, headroom=2.0)
+
+        # Ensure output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+        # Export
+        if output_format == "mp3":
+            mashup_seg.export(
+                output_path,
+                format="mp3",
+                bitrate="320k",
+                parameters=["-q:a", "0"]
+            )
+        elif output_format == "wav":
+            mashup_seg.export(
+                output_path,
+                format="wav",
+                parameters=["-ac", "2", "-ar", str(sr_a)]
+            )
+        else:
+            raise MashupConfigError(f"Unsupported output format: {output_format}")
+
+        pairs_found = len([p for p in dialogue_parts if len(p) > 0]) - len(sections_a)
+        logger.info(f"🎵 Conversational mashup created: {output_path}")
+        logger.info(f"   Conversational pairs: {pairs_found // 2}")
+        return output_path
+
+    except (SongNotFoundError, ProcessingError) as e:
+        raise
+    except Exception as e:
+        raise EngineerError(f"Conversational mashup creation failed: {e}")

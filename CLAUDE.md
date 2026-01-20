@@ -113,7 +113,25 @@ The **Analyst Agent** extracts detailed section-level data to enable advanced ma
 - **Vocal**: Density (sparse/medium/dense), intensity, lyrical content
 - **Semantic**: Emotional tone, lyrical function (narrative/hook/question/answer), themes
 
-This section metadata is stored in the `sections` field of `SongMetadata` and enables 8 different mashup strategies (see `MashupType` enum in `mixer/types.py`).
+This section metadata is stored in the `sections` field of `SongMetadata` and enables 8 different mashup strategies (see `MashupType` enum in `mixer/types.py`):
+
+1. **Classic** (`create_classic_mashup`) - Vocal from song A + instrumental from song B
+2. **Stem Swap** (`create_stem_swap_mashup`) - Mix stems from 3+ songs (drums/bass/vocals/other)
+3. **Energy Match** (`create_energy_matched_mashup`) - Align high-energy sections dynamically
+4. **Adaptive Harmony** (`create_adaptive_harmony_mashup`) - Auto-fix key clashes via pitch-shifting
+5. **Theme Fusion** (`create_theme_fusion_mashup`) - Filter sections by lyrical themes
+6. **Semantic-Aligned** (`create_semantic_aligned_mashup`) - Question→answer, narrative→reflection pairing
+7. **Role-Aware** (`create_role_aware_mashup`) - Vocals shift between lead/harmony/call/response/texture based on vocal characteristics
+8. **Conversational** (`create_conversational_mashup`) - Songs talk to each other like a dialogue with silence gaps
+
+### Word-Level Timing (Phase 3E)
+
+For interactive mashup types (Role-Aware, Conversational), the **Analyst Agent** now stores word-level timestamps from Whisper:
+
+- **Field**: `word_timings` in `SongMetadata` (list of Whisper segment dictionaries)
+- **Source**: Whisper transcription with `word_timestamps=True`
+- **Usage**: Enables future word-level vocal extraction for precise dialogue creation
+- **Current Implementation**: Phase 3E mashups work at section-level (for MVP stability)
 
 ### Audio Processing Stack
 
@@ -204,25 +222,23 @@ library_cache = config.get_path("library_cache")
 
 ## Project State & Phases
 
-**Current Status**: Phase 3A Complete → Phase 3B Next
+**Current Status**: Phase 3E Complete (All 8 Mashup Types) → Phase 4 Next
 
 **Completed**:
 - ✅ Phase 0: Foundation (directory structure, config, logging, CLI skeleton)
 - ✅ Phase 1: Memory System (ChromaDB integration, 47 unit tests)
 - ✅ Phase 2: Ingestion Agent (local files + YouTube, 22 unit tests)
 - ✅ Phase 3A: Enhanced Analyst Agent (section-level metadata, 10 unit tests)
-
-**In Progress**:
-- ⏳ Phase 3B: Simple Mashup Types (Classic vocal+instrumental, Stem Swap)
+- ✅ Phase 3B: Simple Mashup Types (Classic, Stem Swap)
+- ✅ Phase 3C: Energy-Based Mashups (Energy Match, Adaptive Harmony)
+- ✅ Phase 3D: Semantic Mashups (Theme Fusion, Semantic-Aligned)
+- ✅ Phase 3E: Interactive Mashups (Role-Aware, Conversational, 14 unit tests)
 
 **Future Phases**:
-- Phase 3C: Energy-Based Mashups
-- Phase 3D: Semantic Mashups
-- Phase 3E: Interactive Mashups (Role-Aware, Conversational)
-- Phase 4: Curator Agent
-- Phase 5: LangGraph Workflow
-- Phase 6: CLI Refinement
-- Phase 7: Testing & QA
+- Phase 4: Curator Agent (intelligent song selection and compatibility ranking)
+- Phase 5: LangGraph Workflow (multi-agent orchestration for end-to-end pipeline)
+- Phase 6: CLI Refinement (production-ready command-line interface)
+- Phase 7: Testing & QA (integration tests, real-world song testing)
 
 ## Critical Files
 

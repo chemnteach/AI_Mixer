@@ -167,6 +167,9 @@ class SongMetadata(TypedDict, total=False):
     sections: List[SectionMetadata]  # Section breakdown (verse, chorus, etc.)
     emotional_arc: str                # e.g., "intro:hopeful → verse:doubt → chorus:defiant"
 
+    # Phase 3E: Word-level timing for interactive mashups
+    word_timings: List[Dict]          # Whisper word-level timestamps (segments with words)
+
 
 class IngestionResult(TypedDict):
     """Result from ingestion agent."""

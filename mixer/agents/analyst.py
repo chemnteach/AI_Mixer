@@ -119,7 +119,9 @@ def profile_audio(file_path: str, song_id: str, artist: str, title: str) -> Dict
             date_added=datetime.utcnow().isoformat(),
             # Phase 3A additions
             sections=sections,
-            emotional_arc=emotional_arc
+            emotional_arc=emotional_arc,
+            # Phase 3E additions
+            word_timings=transcript_data.get('word_timings', [])
         )
 
         # Step 9: Store in ChromaDB
