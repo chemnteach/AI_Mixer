@@ -1,0 +1,18 @@
+# Award Elegant Theme
+# Sophisticated aesthetics for client presentations and events
+
+lighting:
+  primary_color: [1.0, 0.95, 0.85]  # Warm white
+  accent_color: [0.8, 0.6, 0.3]  # Gold
+  strobes_enabled: false
+  base_intensity: 0.6
+  drop_flash: false  # Subtle, no harsh flashes
+
+avatar:
+  energy_multiplier: 0.8  # Subdued movements
+  head_bob_gain: 0.7  # Gentle bobbing
+  reaction_intensity: "low"  # Minimal reactions
+
+camera:
+  zoom_on_drop: false
+  retention_nudges: false  # Smooth, no jarring movements

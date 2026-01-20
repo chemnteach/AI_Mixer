@@ -1,0 +1,18 @@
+# Chill Lofi Theme
+# Relaxed, low-energy aesthetic for downtempo content
+
+lighting:
+  primary_color: [0.7, 0.5, 0.8]  # Soft purple
+  accent_color: [0.9, 0.7, 0.5]  # Warm peach
+  strobes_enabled: false
+  base_intensity: 0.4  # Dim, cozy lighting
+  drop_flash: false
+
+avatar:
+  energy_multiplier: 0.6  # Very subdued
+  head_bob_gain: 0.5  # Minimal bobbing
+  reaction_intensity: "low"
+
+camera:
+  zoom_on_drop: false
+  retention_nudges: false  # Static, meditative framing

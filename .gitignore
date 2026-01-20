@@ -47,6 +47,11 @@ mashups/
 logs/
 *.log
 
+# Crossfade Club / Director Outputs
+outputs/
+studio/assets/**/*.blend
+studio/assets/textures/
+
 # Audio Files
 *.wav
 *.mp3

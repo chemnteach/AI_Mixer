@@ -798,6 +798,177 @@ def library_stats():
         st.bar_chart(keys)
 
 
+def generate_video_tab():
+    """Generate Video tab - Crossfade Club Visual DJ System (disabled until assets ready)."""
+    st.header("🎬 Generate Video")
+    st.subheader("Crossfade Club Visual DJ System")
+
+    # Warning banner - feature not ready
+    st.warning("""
+    ⚠️ **Feature Coming Soon - Animation Assets Required**
+
+    This feature will generate platform-optimized videos (TikTok, Reels, Shorts, YouTube)
+    with an animated DJ avatar from your audio mashups.
+
+    **Why disabled?** The Crossfade Club pipeline is fully implemented, but requires
+    Blender 3D animation assets (avatar, studio, actions) that are not yet available.
+
+    **To enable:** Add required .blend files to `studio/assets/` directory.
+    See `studio/assets/README.md` for asset specifications.
+    """)
+
+    st.divider()
+
+    # Audio Source Selection (disabled)
+    st.markdown("### 1. Select Audio")
+
+    audio_source = st.radio(
+        "Audio Source",
+        ["From Library", "Upload New"],
+        disabled=True,
+        help="Choose an audio file to generate video from"
+    )
+
+    if audio_source == "From Library":
+        all_songs = get_all_songs()
+        song_ids = [song['id'] for song in all_songs]
+
+        if song_ids:
+            selected_audio = st.selectbox(
+                "Select Song/Mashup",
+                song_ids,
+                disabled=True,
+                help="Pick a song or mashup from your library"
+            )
+        else:
+            st.info("📭 No songs in library")
+            selected_audio = None
+    else:
+        uploaded_audio = st.file_uploader(
+            "Upload Audio File",
+            type=['mp3', 'wav'],
+            disabled=True,
+            help="Upload audio file for video generation"
+        )
+
+    st.divider()
+
+    # Theme Selection (disabled)
+    st.markdown("### 2. Choose Theme")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        theme = st.selectbox(
+            "Visual Theme",
+            ["sponsor_neon", "award_elegant", "mashup_chaos", "chill_lofi"],
+            disabled=True,
+            help="Visual style: lighting, colors, camera behavior"
+        )
+
+    with col2:
+        st.markdown("**Theme Descriptions:**")
+        st.markdown("""
+        - **sponsor_neon:** High-energy neon lights with strobes
+        - **award_elegant:** Sophisticated event-safe theme
+        - **mashup_chaos:** Maximum visual mayhem
+        - **chill_lofi:** Relaxed downtempo vibes
+        """)
+
+    st.divider()
+
+    # Platform Selection (disabled)
+    st.markdown("### 3. Select Platforms")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        tiktok = st.checkbox("TikTok (9:16)", value=True, disabled=True)
+    with col2:
+        reels = st.checkbox("Reels (9:16)", value=True, disabled=True)
+    with col3:
+        shorts = st.checkbox("Shorts (9:16)", value=True, disabled=True)
+    with col4:
+        youtube = st.checkbox("YouTube (16:9)", value=True, disabled=True)
+
+    st.info("ℹ️ Short-form platforms (TikTok/Reels/Shorts) use 9:16 vertical format. YouTube uses 16:9 widescreen.")
+
+    st.divider()
+
+    # Options (disabled)
+    st.markdown("### 4. Options")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        with_captions = st.checkbox(
+            "Burn-in Captions",
+            value=True,
+            disabled=True,
+            help="Add platform-optimized captions to video"
+        )
+
+    with col2:
+        with_thumbnail = st.checkbox(
+            "Generate Thumbnail",
+            value=True,
+            disabled=True,
+            help="Extract thumbnail from key moment"
+        )
+
+    st.divider()
+
+    # Generate button (disabled)
+    st.markdown("### 5. Generate")
+
+    if st.button("🎬 Generate Videos", type="primary", disabled=True):
+        st.info("Feature disabled - animation assets required")
+
+    # Technical info in expander
+    with st.expander("📋 Technical Details"):
+        st.markdown("""
+        **Pipeline Stages:**
+        1. **Director Agent** - Generates animation timeline from audio metadata
+        2. **Studio Module** - Renders 3D animated DJ avatar with Blender
+        3. **Encoder Module** - Creates platform-specific variants with FFmpeg
+
+        **Output:**
+        - TikTok: 1080×1920 (9:16), 5M bitrate, captions burned-in
+        - Reels: 1080×1920 (9:16), 5M bitrate, captions burned-in
+        - Shorts: 1080×1920 (9:16), 5M bitrate, captions burned-in
+        - YouTube: 1920×1080 (16:9), 8M bitrate, soft subtitles
+        - Thumbnail: 1280×720 JPG
+
+        **Performance:** 3-7 minutes per 30-second video (Blender rendering is bottleneck)
+
+        **Requirements:**
+        - Blender 3.6+ (for 3D rendering)
+        - FFmpeg (for video encoding)
+        - Animation assets (8 .blend files - see studio/assets/README.md)
+        """)
+
+    with st.expander("🎨 Asset Requirements"):
+        st.markdown("""
+        **Required Blender Assets** (8 files):
+
+        **Core Assets:**
+        - `avatar_base.blend` - Base DJ character model
+        - `studio_default.blend` - DJ booth environment
+
+        **Animation Actions:**
+        - `idle_bob.blend` - Idle head bob animation
+        - `deck_scratch_L.blend` - Left deck scratch
+        - `deck_scratch_R.blend` - Right deck scratch
+        - `crossfader_hit.blend` - Crossfader movement
+        - `drop_reaction.blend` - Drop reaction animation
+        - `spotlight_present.blend` - Presenting to camera
+
+        **Location:** `studio/assets/` directory
+
+        **Documentation:** See `studio/assets/README.md` for detailed specifications
+        """)
+
+
 def settings_tab():
     """Settings tab - view and edit configuration."""
     st.header("⚙️ Settings")
@@ -858,11 +1029,13 @@ def main():
             - Semantic song matching
             - Automatic song pairing
             - Section-level analysis
+            - Video generation (coming soon)
 
             **How to use:**
             1. Ingest songs into your library
             2. Create mashups (auto or manual mode)
-            3. Download and enjoy!
+            3. Generate videos (when assets ready)
+            4. Download and enjoy!
             """)
 
         with st.expander("🎨 Mashup Types"):
@@ -878,7 +1051,7 @@ def main():
             """)
 
     # Main tabs
-    tab1, tab2, tab3 = st.tabs(["🎵 Create Mashup", "📚 Library", "⚙️ Settings"])
+    tab1, tab2, tab3, tab4 = st.tabs(["🎵 Create Mashup", "📚 Library", "🎬 Generate Video", "⚙️ Settings"])
 
     with tab1:
         create_mashup_tab()
@@ -887,6 +1060,9 @@ def main():
         library_tab()
 
     with tab3:
+        generate_video_tab()
+
+    with tab4:
         settings_tab()
 
 

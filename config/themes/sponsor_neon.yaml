@@ -1,0 +1,22 @@
+# Sponsor Neon Theme
+# High-energy neon aesthetics for branded content
+
+lighting:
+  primary_color: [0.0, 0.6, 1.0]  # Cyan blue (RGB 0-1)
+  accent_color: [1.0, 0.2, 0.6]  # Hot pink
+  strobes_enabled: true
+  strobe_intensity: 0.8
+  base_intensity: 0.7
+  drop_flash: true
+  drop_flash_duration: 0.3
+
+avatar:
+  energy_multiplier: 1.2  # Amplify energy-driven movements
+  head_bob_gain: 1.5  # Exaggerated head bobbing
+  reaction_intensity: "high"  # Drop reactions are dramatic
+
+camera:
+  zoom_on_drop: true
+  zoom_magnitude: 0.15
+  retention_nudges: true
+  nudge_interval_sec: 25

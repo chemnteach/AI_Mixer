@@ -58,3 +58,72 @@ logging:
   file: "mixer.log"
   max_file_size_mb: 100
   backup_count: 5
+
+# Director Agent Configuration (Visual Intelligence)
+director:
+  default_theme: "sponsor_neon"
+  default_format: "short"
+
+  event_detection:
+    drop_energy_threshold: 0.2
+    section_change_min_delta: 0.15
+    hard_start_threshold: 0.1
+
+  camera:
+    base_distance: 5.0
+    base_shot: "medium"
+    zoom_on_drop: true
+    zoom_duration_sec: 2.0
+    retention_nudge_interval_sec: 25
+    retention_nudge_magnitude: 0.1
+
+# Studio Configuration (Blender Integration)
+studio:
+  blender_executable: "blender"
+  render_timeout_sec: 600
+  fps: 30
+  render_engine: "EEVEE"
+
+  resolution:
+    short: [1080, 1920]  # 9:16 for TikTok/Reels/Shorts
+    long: [1920, 1080]   # 16:9 for YouTube
+
+  quality:
+    samples: 64
+    shadow_quality: "medium"
+
+# Encoder Configuration (FFmpeg Platform Variants)
+encoder:
+  default_video_codec: "libx264"
+  default_audio_codec: "aac"
+  quality_preset: "medium"
+  parallel_encoding: true
+
+  platforms:
+    tiktok:
+      resolution: [1080, 1920]
+      video_bitrate: "5M"
+      audio_bitrate: "192k"
+      burn_captions: true
+      fps: 30
+
+    reels:
+      resolution: [1080, 1920]
+      video_bitrate: "5M"
+      audio_bitrate: "192k"
+      burn_captions: true
+      fps: 30
+
+    shorts:
+      resolution: [1080, 1920]
+      video_bitrate: "5M"
+      audio_bitrate: "192k"
+      burn_captions: true
+      fps: 30
+
+    youtube:
+      resolution: [1920, 1080]
+      video_bitrate: "8M"
+      audio_bitrate: "320k"
+      burn_captions: false
+      fps: 30

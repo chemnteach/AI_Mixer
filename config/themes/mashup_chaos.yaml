@@ -1,0 +1,24 @@
+# Mashup Chaos Theme
+# Maximum energy and visual mayhem for creative mashups
+
+lighting:
+  primary_color: [1.0, 0.0, 0.5]  # Magenta
+  accent_color: [0.0, 1.0, 0.5]  # Green (high contrast)
+  strobes_enabled: true
+  strobe_intensity: 1.0  # Maximum
+  base_intensity: 0.9
+  drop_flash: true
+  drop_flash_duration: 0.5
+  color_shift_enabled: true  # Randomize colors on sections
+
+avatar:
+  energy_multiplier: 1.5  # Wild movements
+  head_bob_gain: 2.0  # Extreme bobbing
+  reaction_intensity: "high"
+
+camera:
+  zoom_on_drop: true
+  zoom_magnitude: 0.25  # Aggressive zooms
+  retention_nudges: true
+  nudge_interval_sec: 20
+  nudge_magnitude: 0.15

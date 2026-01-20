@@ -1,0 +1,54 @@
+# Caption Styles for Platform Variants
+
+tiktok:
+  font: "Montserrat-Bold"
+  size: 72
+  position: "center_bottom"
+  color: "FFFFFF"
+  outline_color: "000000"
+  outline_width: 3
+  animation: "word_pop"
+  y_offset: 200  # Pixels from bottom
+
+reels:
+  font: "Montserrat-Bold"
+  size: 72
+  position: "center_bottom"
+  color: "FFFFFF"
+  outline_color: "000000"
+  outline_width: 3
+  animation: "word_pop"
+  y_offset: 200
+
+shorts:
+  font: "Montserrat-Bold"
+  size: 72
+  position: "center_bottom"
+  color: "FFFFFF"
+  outline_color: "000000"
+  outline_width: 3
+  animation: "word_pop"
+  y_offset: 200
+
+youtube:
+  # YouTube uses soft subtitles (not burned in)
+  # These settings are for reference only
+  font: "Arial"
+  size: 48
+  position: "bottom"
+  color: "FFFFFF"
+  outline_color: "000000"
+  outline_width: 2
+  animation: null
+  y_offset: 50
+
+# Default fallback style
+default:
+  font: "Arial"
+  size: 60
+  position: "bottom"
+  color: "FFFFFF"
+  outline_color: "000000"
+  outline_width: 2
+  animation: null
+  y_offset: 100
