@@ -2,6 +2,7 @@
 
 from mixer.agents.ingestion import (
     ingest_song,
+    extract_playlist_info,
     IngestionError,
     InvalidInputError,
     DownloadError,
@@ -38,6 +39,7 @@ from mixer.agents.engineer import (
 __all__ = [
     # Ingestion
     "ingest_song",
+    "extract_playlist_info",
     "IngestionError",
     "InvalidInputError",
     "DownloadError",

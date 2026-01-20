@@ -487,6 +487,67 @@ def ingest_youtube_url(url: str) -> IngestionResult:
         raise DownloadError(f"Unexpected error during download: {e}")
 
 
+def extract_playlist_info(playlist_url: str) -> list[dict]:
+    """
+    Extract video information from a YouTube playlist without downloading.
+
+    Args:
+        playlist_url: YouTube playlist URL
+
+    Returns:
+        List of dicts with keys: url, title, duration, uploader
+
+    Raises:
+        DownloadError: If playlist extraction fails
+    """
+    import subprocess
+    import json
+
+    logger.info(f"Extracting playlist info from: {playlist_url}")
+
+    try:
+        # Use yt-dlp to extract playlist info without downloading
+        result = subprocess.run(
+            [
+                "yt-dlp",
+                "--flat-playlist",
+                "--dump-json",
+                "--no-warnings",
+                playlist_url
+            ],
+            capture_output=True,
+            text=True,
+            timeout=60,  # 1 minute timeout
+            check=True
+        )
+
+        # Parse JSON lines (one JSON object per video)
+        videos = []
+        for line in result.stdout.strip().split('\n'):
+            if line:
+                try:
+                    video_data = json.loads(line)
+                    videos.append({
+                        'url': f"https://www.youtube.com/watch?v={video_data['id']}",
+                        'title': video_data.get('title', 'Unknown'),
+                        'duration': video_data.get('duration', 0),
+                        'uploader': video_data.get('uploader', 'Unknown')
+                    })
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse JSON line: {line}")
+                    continue
+
+        logger.info(f"Extracted {len(videos)} videos from playlist")
+        return videos
+
+    except subprocess.TimeoutExpired:
+        raise DownloadError("Playlist extraction timed out")
+    except subprocess.CalledProcessError as e:
+        raise DownloadError(f"Failed to extract playlist: {e.stderr}")
+    except Exception as e:
+        raise DownloadError(f"Unexpected error extracting playlist: {e}")
+
+
 def ingest_song(input_source: str, max_retries: int = 3) -> IngestionResult:
     """
     Ingest audio from YouTube URL or local file.

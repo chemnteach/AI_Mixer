@@ -388,7 +388,7 @@ def ingest_interface():
 
     ingest_mode = st.radio(
         "Ingest Mode",
-        ["Upload File", "YouTube URL", "Batch Folder"],
+        ["Upload File", "YouTube URL", "Batch Folder", "YouTube Playlist"],
         horizontal=True
     )
 
@@ -452,7 +452,7 @@ def ingest_interface():
             except Exception as e:
                 st.error(f"❌ Ingestion failed: {str(e)}")
 
-    else:  # Batch Folder
+    elif ingest_mode == "Batch Folder":
         st.markdown("""
         **Batch ingest all audio files from a folder** (perfect for CD rips!)
 
@@ -570,6 +570,183 @@ def ingest_interface():
                     st.warning(f"⚠️ {analysis_failed} analysis failures")
 
             st.success("🎉 Batch ingestion complete!")
+
+    else:  # YouTube Playlist
+        st.markdown("""
+        **Ingest entire YouTube playlist** (perfect for curated music collections!)
+
+        Paste a YouTube playlist URL to extract all videos and selectively ingest songs.
+        """)
+
+        playlist_url = st.text_input(
+            "YouTube Playlist URL",
+            placeholder="https://www.youtube.com/playlist?list=PLxxxxxxx",
+            help="Enter a YouTube playlist URL"
+        )
+
+        # Initialize session state for playlist videos
+        if 'playlist_videos' not in st.session_state:
+            st.session_state.playlist_videos = []
+        if 'selected_videos' not in st.session_state:
+            st.session_state.selected_videos = set()
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            if playlist_url and st.button("🔍 Fetch Playlist"):
+                with st.spinner("Fetching playlist info..."):
+                    try:
+                        from mixer.agents import extract_playlist_info
+
+                        videos = extract_playlist_info(playlist_url)
+                        st.session_state.playlist_videos = videos
+                        st.session_state.selected_videos = set(range(len(videos)))  # Select all by default
+
+                        st.success(f"✅ Found {len(videos)} videos in playlist!")
+
+                    except Exception as e:
+                        st.error(f"❌ Failed to fetch playlist: {str(e)}")
+                        st.session_state.playlist_videos = []
+
+        with col2:
+            auto_analyze = st.checkbox(
+                "Analyze after ingestion?",
+                value=True,
+                key="playlist_analyze",
+                help="Recommended: Extract metadata for better mashups"
+            )
+
+        # Show playlist videos with checkboxes
+        if st.session_state.playlist_videos:
+            st.markdown("### Select Videos to Ingest")
+
+            # Select/Deselect all buttons
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("✅ Select All"):
+                    st.session_state.selected_videos = set(range(len(st.session_state.playlist_videos)))
+                    st.rerun()
+            with col2:
+                if st.button("❌ Deselect All"):
+                    st.session_state.selected_videos = set()
+                    st.rerun()
+
+            # Show video table with checkboxes
+            st.markdown(f"**{len(st.session_state.selected_videos)} of {len(st.session_state.playlist_videos)} videos selected**")
+
+            # Display videos in a container (show first 20)
+            display_limit = 20
+            for i, video in enumerate(st.session_state.playlist_videos[:display_limit]):
+                col1, col2, col3, col4 = st.columns([0.5, 3, 1.5, 1])
+
+                with col1:
+                    is_selected = i in st.session_state.selected_videos
+                    if st.checkbox("", value=is_selected, key=f"video_{i}"):
+                        st.session_state.selected_videos.add(i)
+                    else:
+                        st.session_state.selected_videos.discard(i)
+
+                with col2:
+                    st.text(video['title'][:60])
+                with col3:
+                    st.text(video['uploader'][:25])
+                with col4:
+                    duration_str = f"{video['duration']//60}:{video['duration']%60:02d}" if video['duration'] else "N/A"
+                    st.text(duration_str)
+
+            if len(st.session_state.playlist_videos) > display_limit:
+                st.info(f"ℹ️ Showing first {display_limit} of {len(st.session_state.playlist_videos)} videos. All selected videos will be ingested.")
+
+            # Ingest button
+            if st.button("📥 Ingest Selected Videos", type="primary"):
+                selected_indices = sorted(st.session_state.selected_videos)
+
+                if not selected_indices:
+                    st.warning("⚠️ No videos selected!")
+                    return
+
+                selected_videos = [st.session_state.playlist_videos[i] for i in selected_indices]
+
+                st.markdown("### Ingesting Videos")
+
+                ingested = []
+                skipped = []
+                failed = []
+
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+
+                for i, video in enumerate(selected_videos):
+                    status_text.text(f"Ingesting: {video['title'][:50]}")
+
+                    try:
+                        result = ingest_song(video['url'])
+
+                        if result['cached']:
+                            skipped.append(video['title'])
+                        else:
+                            ingested.append(result['id'])
+
+                    except Exception as e:
+                        failed.append((video['title'], str(e)))
+
+                    progress_bar.progress((i + 1) / len(selected_videos))
+
+                status_text.empty()
+                progress_bar.empty()
+
+                # Summary
+                st.markdown("### Ingestion Summary")
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("✅ Ingested", len(ingested))
+                with col2:
+                    st.metric("⚠️ Skipped", len(skipped))
+                with col3:
+                    st.metric("❌ Failed", len(failed))
+
+                if failed:
+                    with st.expander("Show failed videos"):
+                        for title, error in failed[:10]:
+                            st.text(f"- {title[:50]}: {error}")
+                        if len(failed) > 10:
+                            st.text(f"... and {len(failed)-10} more failures")
+
+                # Auto-analyze
+                if auto_analyze and ingested:
+                    st.markdown("### Analyzing Songs")
+
+                    analyzed = 0
+                    analysis_failed = 0
+
+                    progress_bar = st.progress(0)
+                    status_text = st.empty()
+
+                    for i, song_id in enumerate(ingested):
+                        status_text.text(f"Analyzing: {song_id}")
+
+                        try:
+                            song_data = get_song(song_id)
+                            if song_data:
+                                profile_audio(song_data['metadata']['cache_path'])
+                                analyzed += 1
+                        except Exception as e:
+                            analysis_failed += 1
+
+                        progress_bar.progress((i + 1) / len(ingested))
+
+                    status_text.empty()
+                    progress_bar.empty()
+
+                    st.success(f"✅ Analyzed {analyzed} songs")
+                    if analysis_failed:
+                        st.warning(f"⚠️ {analysis_failed} analysis failures")
+
+                st.success("🎉 Playlist ingestion complete!")
+
+                # Clear playlist state
+                st.session_state.playlist_videos = []
+                st.session_state.selected_videos = set()
 
 
 def library_stats():

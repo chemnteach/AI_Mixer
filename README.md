@@ -177,6 +177,10 @@ python -m mixer ingest path/to/song.mp3
 python -m mixer ingest --folder "C:\Users\YourName\Music\New Rips"
 python -m mixer ingest --folder "C:\Users\YourName\Music\New Rips" --analyze
 
+# 1c. Batch ingest from YouTube playlist (perfect for curated collections!)
+python -m mixer ingest --playlist "https://www.youtube.com/playlist?list=PLxxxxxxx"
+python -m mixer ingest --playlist "https://www.youtube.com/playlist?list=PLxxxxxxx" --max 20 --analyze
+
 # 2. Analyze songs (extracts BPM, key, lyrics, mood, sections)
 python -m mixer analyze <song-id>
 python -m mixer analyze --batch  # Analyze all unanalyzed songs

@@ -78,7 +78,7 @@ Manage your song collection with three sub-tabs:
   - **Delete** - Remove from library (double-click to confirm)
 
 #### Ingest
-Three ways to add songs:
+Four ways to add songs:
 
 **Upload File:**
 - Supported formats: MP3, WAV, FLAC
@@ -90,7 +90,7 @@ Three ways to add songs:
 - Audio extracted automatically
 - Cached for future use
 
-**Batch Folder:** ⭐ NEW!
+**Batch Folder:** ⭐
 - Perfect for CD rips or large music collections
 - Paste folder path (e.g., `C:\Users\YourName\Music\New Rips`)
 - Supports: MP3, WAV, FLAC, M4A, OGG
@@ -98,11 +98,23 @@ Three ways to add songs:
 - Progress bar shows ingestion status
 - Summary shows ingested/skipped/failed counts
 
+**YouTube Playlist:** ⭐ NEW!
+- Perfect for curated music collections
+- Paste YouTube playlist URL
+- Fetches all videos in playlist (no download yet)
+- Select/deselect videos with checkboxes
+- "Select All" / "Deselect All" buttons
+- Shows first 20 videos (all selected will be ingested)
+- Auto-analyze after ingestion
+- Progress bars for both ingestion and analysis
+- Summary shows ingested/skipped/failed counts
+
 **Tips:**
 - Always check "Analyze now?" for better mashups
 - Upload diverse genres for interesting combinations
 - YouTube URLs work with music videos, live performances, etc.
 - Use Batch Folder for CD rips - rip with Windows Media Player first, then batch ingest
+- Use YouTube Playlist for "Best of" or themed collections
 
 #### Stats
 Visual analytics for your library:
@@ -295,7 +307,7 @@ Watch for:
 
 **Time:** ~5 minutes
 
-### Workflow 5: Batch Ingest CD Collection ⭐ NEW!
+### Workflow 5: Batch Ingest CD Collection ⭐
 1. Rip CD with Windows Media Player to `C:\Users\YourName\Music\Album Name`
 2. Open The Mixer web UI
 3. Go to **Library** tab → **Ingest** sub-tab
@@ -313,6 +325,33 @@ Watch for:
 - Building library from CD collection
 - Processing folder of downloaded music
 - Migrating existing music library
+
+### Workflow 6: Ingest YouTube Playlist ⭐ NEW!
+1. Find a YouTube playlist (e.g., "Best 80s Rock Hits")
+2. Copy the playlist URL
+3. Open The Mixer web UI
+4. Go to **Library** tab → **Ingest** sub-tab
+5. Select **YouTube Playlist** mode
+6. Paste playlist URL
+7. Click **Fetch Playlist**
+8. Review the list of videos (first 20 shown)
+9. Use checkboxes to select/deselect songs
+10. Check "Analyze after ingestion?"
+11. Click **Ingest Selected Videos**
+12. Watch progress as videos are downloaded and analyzed
+13. View summary
+
+**Time:** ~1-2 minutes per song (download + analysis)
+
+**Perfect for:**
+- Building themed libraries ("Best of 80s", "Summer Hits")
+- Finding mashup-compatible songs in curated playlists
+- Quick library building from existing collections
+
+**CLI Alternative:**
+```bash
+python -m mixer ingest --playlist "https://www.youtube.com/playlist?list=PLxxxxxxx" --max 20 --analyze
+```
 
 ## FAQ
 

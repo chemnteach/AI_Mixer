@@ -70,25 +70,36 @@ def main(ctx: click.Context, config: Path | None, verbose: bool) -> None:
     help='Ingest all audio files from a folder'
 )
 @click.option(
+    '--playlist',
+    help='Ingest all videos from a YouTube playlist URL'
+)
+@click.option(
+    '--max',
+    'max_songs',
+    type=int,
+    help='Maximum number of songs to ingest from playlist'
+)
+@click.option(
     '--analyze',
     is_flag=True,
     help='Automatically analyze songs after ingestion'
 )
 @click.pass_context
-def ingest(ctx: click.Context, input_source: str | None, folder: str | None, analyze: bool) -> None:
-    """Ingest audio from YouTube URL, local file, or folder.
+def ingest(ctx: click.Context, input_source: str | None, folder: str | None, playlist: str | None, max_songs: int | None, analyze: bool) -> None:
+    """Ingest audio from YouTube URL, local file, folder, or playlist.
 
-    INPUT_SOURCE: YouTube URL or path to audio file (if not using --folder)
+    INPUT_SOURCE: YouTube URL or path to audio file (if not using --folder or --playlist)
     """
     from pathlib import Path
 
     # Validate arguments
-    if not input_source and not folder:
-        console.print("[red]Error: Provide INPUT_SOURCE or use --folder[/red]")
+    if not input_source and not folder and not playlist:
+        console.print("[red]Error: Provide INPUT_SOURCE, --folder, or --playlist[/red]")
         sys.exit(1)
 
-    if input_source and folder:
-        console.print("[red]Error: Cannot use both INPUT_SOURCE and --folder[/red]")
+    exclusive_count = sum([bool(input_source), bool(folder), bool(playlist)])
+    if exclusive_count > 1:
+        console.print("[red]Error: Cannot use INPUT_SOURCE, --folder, and --playlist together[/red]")
         sys.exit(1)
 
     # Single file/URL mode
@@ -135,7 +146,7 @@ def ingest(ctx: click.Context, input_source: str | None, folder: str | None, ana
             sys.exit(1)
 
     # Batch folder mode
-    else:
+    elif folder:
         folder_path = Path(folder)
 
         console.print(Panel.fit(
@@ -233,6 +244,141 @@ def ingest(ctx: click.Context, input_source: str | None, folder: str | None, ana
             console.print(f"\n[green]✓ Analyzed {analyzed} songs[/green]")
             if analysis_failed:
                 console.print(f"[yellow]⚠ {analysis_failed} analysis failures[/yellow]")
+
+    # Batch playlist mode
+    elif playlist:
+        console.print(Panel.fit(
+            f"[bold cyan]Extracting Playlist:[/bold cyan] {playlist}",
+            border_style="cyan"
+        ))
+
+        try:
+            from mixer.agents import extract_playlist_info
+
+            # Extract playlist info
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                console=console
+            ) as progress:
+                task = progress.add_task("Fetching playlist...", total=None)
+                videos = extract_playlist_info(playlist)
+                progress.update(task, description="✓ Playlist fetched")
+
+            if not videos:
+                console.print("[yellow]No videos found in playlist[/yellow]")
+                return
+
+            # Apply max limit
+            if max_songs and max_songs < len(videos):
+                videos = videos[:max_songs]
+                console.print(f"[yellow]Limiting to first {max_songs} videos[/yellow]")
+
+            console.print(f"Found {len(videos)} videos\n")
+
+            # Show preview table
+            table = Table(title="Playlist Videos")
+            table.add_column("#", style="dim")
+            table.add_column("Title", style="cyan")
+            table.add_column("Uploader", style="green")
+            table.add_column("Duration", justify="right")
+
+            for i, video in enumerate(videos[:10], 1):  # Show first 10
+                duration_str = f"{video['duration']//60}:{video['duration']%60:02d}" if video['duration'] else "N/A"
+                table.add_row(str(i), video['title'][:50], video['uploader'][:20], duration_str)
+
+            if len(videos) > 10:
+                table.add_row("...", f"... and {len(videos)-10} more", "", "")
+
+            console.print(table)
+            console.print()
+
+            # Confirm ingestion
+            if not click.confirm(f"Ingest {len(videos)} videos from playlist?", default=True):
+                console.print("[yellow]Cancelled[/yellow]")
+                return
+
+            # Ingest each video
+            ingested = []
+            skipped = []
+            failed = []
+
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                console=console
+            ) as progress:
+                task = progress.add_task("Ingesting videos...", total=len(videos))
+
+                for video in videos:
+                    progress.update(task, description=f"Ingesting: {video['title'][:40]}")
+
+                    try:
+                        result = ingest_song(video['url'])
+
+                        if result["cached"]:
+                            skipped.append(video['title'])
+                        else:
+                            ingested.append(result['id'])
+
+                    except Exception as e:
+                        failed.append((video['title'], str(e)))
+
+                    progress.advance(task)
+
+            # Summary
+            console.print("\n[bold]Ingestion Summary:[/bold]")
+            console.print(f"  [green]✓ Ingested:[/green] {len(ingested)}")
+            console.print(f"  [yellow]⚠ Skipped (already in library):[/yellow] {len(skipped)}")
+            console.print(f"  [red]✗ Failed:[/red] {len(failed)}")
+
+            if failed:
+                console.print("\n[bold red]Failed videos:[/bold red]")
+                for title, error in failed[:5]:  # Show first 5
+                    console.print(f"  - {title[:50]}: {error}")
+                if len(failed) > 5:
+                    console.print(f"  ... and {len(failed)-5} more failures")
+
+            # Auto-analyze if requested
+            if analyze and ingested:
+                console.print("\n[bold cyan]Analyzing ingested songs...[/bold cyan]")
+
+                from mixer.agents import profile_audio
+
+                analyzed = 0
+                analysis_failed = 0
+
+                with Progress(
+                    SpinnerColumn(),
+                    TextColumn("[progress.description]{task.description}"),
+                    BarColumn(),
+                    TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                    console=console
+                ) as progress:
+                    task = progress.add_task("Analyzing...", total=len(ingested))
+
+                    for song_id in ingested:
+                        progress.update(task, description=f"Analyzing: {song_id}")
+
+                        try:
+                            song_data = get_song(song_id)
+                            if song_data:
+                                profile_audio(song_data['metadata']['path'])
+                                analyzed += 1
+                        except Exception as e:
+                            analysis_failed += 1
+
+                        progress.advance(task)
+
+                console.print(f"\n[green]✓ Analyzed {analyzed} songs[/green]")
+                if analysis_failed:
+                    console.print(f"[yellow]⚠ {analysis_failed} analysis failures[/yellow]")
+
+        except IngestionError as e:
+            console.print(f"[red]✗ Playlist ingestion failed:[/red] {e}")
+            sys.exit(1)
 
 
 @main.command()
