@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-20 (Session 9)
+**Last Updated:** 2026-01-21 (Session 10)
 **Project:** The Mixer - AI-powered audio mashup pipeline + Crossfade Club visual DJ system
-**Current Phase:** All 7 Phases Complete + Web UI + Batch Ingestion + Crossfade Club PRD 🚀
+**Current Phase:** All Complete - Researching Free Blender Assets 🎨
 
 ---
 
@@ -90,9 +90,9 @@
 - Coverage: memory (98%), ingestion (95%), analyst (92%), engineer (93-98%), curator (94%), workflow (68-100%), CLI (production-ready)
 
 **Web UI (Post-Phase 7 Enhancement):**
-- `mixer_ui.py` - Complete Streamlit web interface (750+ lines)
+- `mixer_ui.py` - Complete Streamlit web interface (1066 lines)
 - `UI_GUIDE.md` - Comprehensive UI usage guide with workflows and FAQ
-- Features: Create Mashup tab (auto/manual modes), Library Management (browse/ingest/stats), Settings viewer
+- Features: Create Mashup tab (auto/manual modes), Library Management (browse/ingest/stats), Generate Video tab (disabled pending assets), Settings viewer
 - All 8 mashup types accessible via dropdown
 - Visual library browser with search, charts, metadata display
 - File upload, audio playback, download functionality
@@ -106,17 +106,20 @@
 - UI: Checkbox selection for playlist videos, select/deselect all buttons
 - Perfect for building libraries from CD collections or themed YouTube playlists
 
-**Crossfade Club — Visual DJ System (Future Expansion PRD):**
-- `CROSSFADE_CLUB_PRD.md` - Complete product requirements for video production system (35 sections)
+**Crossfade Club — Visual DJ System (Implementation Complete):**
+- `docs/crossfade-club/CROSSFADE_CLUB_PRD.md` - Product requirements (35 sections)
+- `docs/crossfade-club/CROSSFADE_CLUB_COMPLETE.md` - Implementation summary
 - **Concept:** Convert Mixer audio mashups into platform-optimized video content with animated cartoon DJ avatar
-- **Scope:** Two audio modes (mashup + single-song/event), event-safe guardrails, batch video generation
 - **Architecture:** Mixer → Director Agent → Blender Studio → FFmpeg Encoder → Platform variants
-- **Components:** Director (visual intelligence), Studio (3D animation), Encoder (video variants), Batch Runner
-- **Outputs:** Short-form (9:16 TikTok/Reels/Shorts), Long-form (16:9 YouTube), thumbnails, usage manifests
-- **MVP:** Base avatar with 5 core actions, single studio, 4 themes, automated rendering pipeline
-- **Future:** Wardrobe system, props, multiple characters (documented but not MVP scope)
-- **Legal:** Event-safe mode with usage manifests for client deliverables, music licensing disclaimers
-- **Status:** Design phase - PRD complete, implementation not yet started
+- **Components (All Implemented):**
+  - `director/` - Visual intelligence layer (timeline, events, camera, themes, safety)
+  - `studio/` - Blender integration (renderer, asset_loader, blender_scripts)
+  - `encoder/` - FFmpeg platform variants (platform, captions, thumbnail)
+  - `batch/` - Batch runner for automated video generation
+- **Themes:** 4 presets (sponsor_neon, award_elegant, mashup_chaos, chill_lofi)
+- **Tests:** 67 tests (63 unit + 4 integration), 100% pass rate
+- **Status:** ✅ Code complete, ⚠️ Requires Blender assets (8 .blend files) - see `studio/assets/README.md`
+- **Current:** Researching free/cheap asset sources (Mixamo, BlendSwap, AI tools)
 
 ---
 
@@ -377,12 +380,12 @@ def chroma_client(temp_chroma_dir):
 
 ## Known Issues & Constraints
 
-### Current Limitations
+### Current Blockers
 
-1. **6/8 mashup types complete** - Role-Aware and Conversational mashups (Phase 3E) still pending
-2. **No Curator Agent** - Automated song selection logic not yet implemented
-3. **No LangGraph workflow** - Multi-agent orchestration still manual
-4. **CLI incomplete** - Only skeleton commands, needs full implementation
+1. **Blender assets required** - 8 .blend files needed to enable video generation (see `studio/assets/README.md`)
+   - `avatar_base.blend` - DJ character with Rigify rig
+   - `studio_default.blend` - DJ booth environment
+   - 6 action clips in `actions/` folder
 
 ### Future Considerations
 
@@ -390,6 +393,7 @@ def chroma_client(temp_chroma_dir):
 2. **Large installations** - PyTorch dependencies ~5GB total
 3. **GPU memory** - Demucs peak usage ~8GB VRAM, fallback to CPU needed
 4. **Cache management** - Need LRU eviction if library exceeds 50GB
+5. **Video rendering time** - Studio module is bottleneck (2-5 min per 30s video)
 
 ---
 
@@ -413,27 +417,22 @@ python -m mixer --help
 
 ### Test Coverage Summary
 
-**Phase 1 (Memory):** 47 tests
-- ✅ ID sanitization, metadata validation, ChromaDB persistence
-- ✅ Harmonic, semantic, hybrid matching
-- ✅ Camelot wheel logic
+**Mixer Core:** 170+ unit tests
+- Phase 1 (Memory): 47 tests - ID sanitization, metadata validation, ChromaDB, Camelot wheel
+- Phase 2 (Ingestion): 22 tests - Local files, YouTube, cache, format conversion
+- Phase 3A (Analyst): 10 tests - Section detection, energy/vocal analysis
+- Phase 3B-3E (Engineer): 48 tests - All 8 mashup types, 93% coverage
+- Phase 4 (Curator): 19 tests - Compatibility scoring, mashup recommendation, 94% coverage
+- Phase 5 (Workflow): 25 tests - LangGraph state machine, error handling
+- Integration: E2E workflow tests, CLI integration tests
 
-**Phase 2 (Ingestion):** 22 tests
-- ✅ Local file support, YouTube ingestion
-- ✅ Cache checking, format conversion, validation
+**Crossfade Club:** 67 tests (63 unit + 4 integration)
+- Director: themes, events, camera, safety
+- Studio: asset_loader, renderer
+- Encoder: platform, captions, thumbnail
+- Batch: runner, pipeline integration
 
-**Phase 3A (Analyst):** 10 tests
-- ✅ Section detection, energy analysis
-- ✅ Vocal analysis, semantic extraction
-
-**Phase 3B-3D (Engineer):** 34 tests
-- ✅ Classic and stem swap mashups
-- ✅ Energy-matched and adaptive harmony mashups
-- ✅ Theme fusion and semantic-aligned mashups
-- ✅ Pitch-shifting and key transposition
-- ✅ 92% coverage on engineer.py
-
-**Total: 113 unit tests**
+**Total: 237+ tests across all modules**
 
 ---
 
@@ -565,87 +564,52 @@ python -m mixer --help
 
 ## Next Session Priorities
 
-### Immediate: Phase 4 - Curator Agent
+### Immediate: Acquire Blender Assets
 
-**Goal:** Intelligent song selection and compatibility ranking for automated mashup discovery
+**Goal:** Find free or low-cost Blender assets to enable Crossfade Club video generation
 
-**Implement:**
-1. Harmonic compatibility scoring (Camelot wheel distance calculation)
-2. Semantic similarity scoring (embedding cosine similarity)
-3. Hybrid ranking algorithm (weighted combination of harmonic + semantic)
-4. Batch processing for library-wide pairing recommendations
-5. Mashup type recommendation based on song characteristics
+**Approach (decided 2026-01-21):**
+1. Multi-LLM research to discover tools/packages for character creation
+2. Evaluate free sources: Mixamo, BlendSwap, Sketchfab, AI generators
+3. DIY path preferred (hobby project, not revenue-generating yet)
 
-**Key Challenges:**
-- Efficient batch querying without re-embedding songs
-- Configurable ranking weights in config.yaml
-- Cache compatibility scores for performance
-- Handle large libraries (100+ songs)
+**Research Prompt Sent To:** Claude.ai, ChatGPT, Gemini, Perplexity
 
----
+**Research Categories:**
+- AI-powered 3D character generation (Meshy.ai, Tripo3D, etc.)
+- Blender character creation addons (Rigify, Auto-Rig Pro, MB-Lab)
+- AI motion capture / video-to-animation tools
+- Procedural animation tools
+- Pre-made character libraries beyond Mixamo
 
-### Future Phases (Not Yet Started)
+**Asset Requirements (from `studio/assets/README.md`):**
+- `avatar_base.blend` - Rigged DJ character (Rigify compatible)
+- `studio_default.blend` - DJ booth with camera/lighting
+- 6 animation clips: idle_bob, deck_scratch_L/R, crossfader_hit, drop_reaction, spotlight_present
 
-#### Phase 4: Curator Agent
-**Goal:** Intelligent song selection and mashup candidate ranking
-
-**Implement:**
-1. Automated candidate discovery via ChromaDB hybrid matching
-2. Compatibility scoring (harmonic, energy, semantic alignment)
-3. Mashup type recommendation based on song characteristics
-4. Quality prediction and ranking
-
-#### Phase 5: LangGraph Workflow
-**Goal:** Multi-agent orchestration for end-to-end pipeline
-
-**Implement:**
-1. Orchestrator agent coordinating Ingestion → Analyst → Curator → Engineer
-2. State management across agent handoffs
-3. Error recovery and retry logic
-4. Parallel processing where possible
-
-#### Phase 6: CLI Refinement
-**Goal:** Production-ready command-line interface
-
-**Implement:**
-1. Full CLI commands for all operations
-2. Progress indicators and status reporting
-3. Configuration management
-4. Output file management
-
-#### Phase 7: Testing & QA
-**Goal:** Production-ready quality assurance
-
-**Implement:**
-1. Integration tests across full pipeline
-2. Real-world song testing (6 categories)
-3. Performance benchmarks
-4. Documentation and examples
+**Free Sources Identified:**
+| Source | What | License |
+|--------|------|---------|
+| Mixamo.com | Characters + 2500 animations | Free |
+| BlendSwap.com | Community .blend files | CC-0/CC-BY |
+| Sketchfab.com | Downloadable models | Check per-asset |
+| ReadyPlayerMe.com | Custom avatars | Free |
 
 ---
 
-### Implementation Philosophy
+### Future Enhancements
 
-**Incremental Build-and-Test:** Validate each layer before moving to the next. When complex mashup types are built, all underlying pieces are proven solid.
+**Crossfade Club v1.1:**
+- Parallel platform encoding (~50% speedup)
+- Asset upload interface in UI
+- Video preview player
+- Real-time rendering preview
 
-**Testing:** Use real songs (not synthetic test files) across 6 categories:
-- Simple pop (4/4, clear sections)
-- Complex arrangement (odd time, irregular structure)
-- A cappella (vocal detection test)
-- Instrumental (no-vocals detection test)
-- Rap (dense lyrics test)
-- Ballad (sparse, emotional, semantic test)
-
-**Progress Summary:**
-- ✅ Phase 2 (Ingestion): Complete (2 sessions)
-- ✅ Phase 3A (Enhanced Analyst): Complete (1 session)
-- ✅ Phase 3B (Simple Mashups): Complete (1 session)
-- ✅ Phase 3C (Energy Types): Complete (1 session)
-- ✅ Phase 3D (Semantic Types): Complete (1 session)
-- ✅ Phase 3E (Interactive Types): Complete (1 session autonomous)
-- ⏸️ Phases 4-7: Not yet started
-
-**Current Status:** 8/8 mashup types complete (100%), all Phase 3 objectives achieved, 93% test coverage
+**Crossfade Club v2.0:**
+- Wardrobe system (outfit swapping)
+- Props system (sunglasses, headphones, glow sticks)
+- Multiple avatar characters
+- Additional studio environments
 
 ---
 
@@ -661,8 +625,11 @@ python -m mixer --help
 - `2026-01-20_00-00_phase-5-complete.yaml` - Phase 5 (LangGraph Workflow) completion
 - `2026-01-20_01-00_phase-6-7-complete.yaml` - Phases 6-7 completion
 - `2026-01-20_02-00_web-ui-complete.yaml` - Web UI addition
-- `2026-01-20_03-00_batch-ingestion-complete.yaml` - Batch folder and playlist ingestion
-- Session 9 (2026-01-20) - Crossfade Club visual DJ system PRD ⭐ (Latest)
+- `2026-01-20_crossfade-club-complete.yaml` - Crossfade Club implementation (4 phases, 48 files, 67 tests)
+- `2026-01-20_ui-video-tab-integration.yaml` - Generate Video tab added to UI (disabled)
+- `2026-01-20_project-cleanup.yaml` - Docs reorganization, cache cleanup
+- `2026-01-20_documentation-update.yaml` - SETUP.md, README, CLAUDE.md updates
+- `2026-01-21_blender-asset-research.yaml` - Asset research session ⭐ (Latest)
 
 **Format:** YAML with sections: goal, done_this_session, blockers, decisions, findings, worked, failed, next
 

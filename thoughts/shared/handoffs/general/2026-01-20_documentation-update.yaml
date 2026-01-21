@@ -1,0 +1,61 @@
+---
+session: general
+date: 2026-01-20
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Comprehensive documentation update for Crossfade Club implementation
+now: All documentation reflects current state (Mixer + Crossfade Club complete)
+test: git log --oneline -5
+
+done_this_session:
+  - task: Created comprehensive SETUP.md for new machine deployment
+    files: [SETUP.md]
+  - task: Updated README.md with complete Crossfade Club documentation
+    files: [README.md]
+  - task: Updated CLAUDE.md to reflect implementation complete (not future)
+    files: [CLAUDE.md]
+  - task: Committed all documentation updates with proper attribution
+    files: [all documentation files]
+
+blockers: []
+
+questions: []
+
+decisions:
+  - setup_guide: Created dedicated SETUP.md instead of embedding in README (separation of concerns)
+  - readme_structure: Reorganized as "Mixer + Crossfade Club" with clear sections for each
+  - status_updates: Changed CLAUDE.md from "Future Expansion" to "Implementation Complete"
+  - doc_references: Updated all file paths to reflect new docs/ directory structure
+
+findings:
+  - README was completely missing Crossfade Club (366 lines old → 492 lines new)
+  - CLAUDE.md still said "Design phase - PRD complete, implementation not yet started" (outdated)
+  - Documentation references pointed to old file locations (before docs/ reorganization)
+  - mixer_ui.py line count outdated (600 → 1066 lines)
+  - All core documentation now accurately reflects project state
+
+worked:
+  - Separate sections for Mixer (audio) vs Crossfade Club (video) improve clarity
+  - Tables for mashup types and platform formats make information scannable
+  - Prerequisites clearly distinguish required vs optional dependencies
+  - SETUP.md provides complete deployment checklist
+  - Updated roadmap shows what's complete vs future enhancements
+
+failed: []
+
+next:
+  - Consider adding visual diagrams to documentation (architecture flowcharts)
+  - Add troubleshooting section to SETUP.md based on user feedback
+  - Create video tutorial once Blender assets are ready
+  - Consider adding CONTRIBUTING.md for open source contributors
+
+files:
+  created:
+    - SETUP.md (343 lines - comprehensive setup guide)
+    - thoughts/shared/handoffs/general/2026-01-20_documentation-update.yaml
+  modified:
+    - README.md (366→492 lines - added Crossfade Club, updated all sections)
+    - CLAUDE.md (updated status, implementation details, doc references)
+  deleted: []

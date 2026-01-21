@@ -1,0 +1,57 @@
+---
+session: general
+date: 2026-01-20
+status: complete
+outcome: SUCCEEDED
+---
+
+goal: Integrate Crossfade Club video generation tab into Streamlit UI
+now: Test UI, enable controls when Blender assets are ready
+test: streamlit run mixer_ui.py
+
+done_this_session:
+  - task: Added "Generate Video" tab to mixer_ui.py with grayed-out controls
+    files: [mixer_ui.py]
+  - task: Created generate_video_tab() function with full UI workflow (disabled)
+    files: [mixer_ui.py]
+  - task: Updated sidebar About section to mention video generation
+    files: [mixer_ui.py]
+
+blockers: []
+
+questions:
+  - When will Blender animation assets (.blend files) be available?
+  - Should we add asset upload functionality to the UI for users to add their own .blend files?
+
+decisions:
+  - ui_integration: Added as 4th tab (between Library and Settings) for unified experience
+  - disabled_state: All controls grayed out with warning banner explaining why (assets required)
+  - progressive_disclosure: Used expanders for Technical Details and Asset Requirements to avoid overwhelming users
+  - asset_location: Clearly documented that assets go in studio/assets/ directory
+
+findings:
+  - Existing Streamlit UI has excellent structure for adding new tabs
+  - mixer_ui.py is 1066 lines (was 895 lines) - still manageable
+  - User has 4 projects and was mixing them up - unified UI helps prevent confusion
+  - Disabling controls is better than hiding the tab entirely - sets user expectations
+
+worked:
+  - Using disabled=True on all form controls creates consistent grayed-out appearance
+  - Warning banner at top of tab clearly communicates feature status
+  - Expanders keep advanced info accessible without cluttering main interface
+  - 5-step workflow structure matches natural user flow (select → configure → generate)
+
+failed: []
+
+next:
+  - Test the UI by running `streamlit run mixer_ui.py` and verifying the Generate Video tab displays correctly
+  - When Blender assets are ready, change all disabled=True to disabled=False in generate_video_tab()
+  - Wire up "Generate Videos" button to call BatchRunner from batch.runner module
+  - Add progress indicators for video generation (timeline → render → encode stages)
+  - Consider adding asset upload interface for users to add their own .blend files
+  - Add video preview player for generated outputs
+
+files:
+  created: []
+  modified:
+    - mixer_ui.py  # Added generate_video_tab() function (171 lines), updated tabs structure, updated sidebar

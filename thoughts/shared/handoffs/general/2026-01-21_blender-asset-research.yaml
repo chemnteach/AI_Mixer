@@ -1,0 +1,136 @@
+---
+session: blender-asset-research
+date: 2026-01-21
+status: in_progress
+outcome: PARTIAL
+---
+
+goal: Research free/cheap Blender assets to enable Crossfade Club video generation
+now: User executing multi-LLM research prompt, will resume with findings
+test: N/A (research phase)
+
+done_this_session:
+  - task: Reviewed ledger and all recent handoff documents
+    files: [CONTINUITY.md, thoughts/shared/handoffs/general/*.yaml]
+  - task: Identified Blender asset requirements from studio/assets/README.md
+    files: [studio/assets/README.md]
+  - task: Discussed Rigify vs pre-baked animation tradeoffs
+    notes: |
+      - Rigify enables procedural animation via Python
+      - But procedural animation looks robotic/mechanical
+      - Pre-baked clips have organic feel (anticipation, follow-through, ease)
+      - Conclusion: Quality matters, keep pre-baked design
+  - task: Discussed asset sourcing options
+    notes: |
+      - Custom freelancer: $500-2200 (too expensive for hobby experiment)
+      - DIY with free tools: $0 (preferred path)
+      - Decision: This is a hobby, not a money maker yet
+  - task: Created multi-LLM research prompt for asset discovery
+    notes: Prompt sent to Claude.ai, ChatGPT, Gemini, Perplexity
+  - task: Fixed CONTINUITY.md ledger inconsistencies
+    files: [CONTINUITY.md]
+    notes: |
+      - Removed outdated "Known Issues" that claimed phases 4-7 incomplete
+      - Updated Crossfade Club section to reflect implementation complete
+      - Updated handoff document list
+      - Updated test coverage summary (237+ tests total)
+      - Updated "Next Session Priorities" to reflect asset research
+
+blockers:
+  - Need Blender assets (8 .blend files) to enable video generation
+  - Waiting for multi-LLM research results
+
+questions:
+  - What AI tools exist for 3D character generation in 2024-2025?
+  - Are there Blender addons that simplify character creation?
+  - Can AI motion capture convert video to animation data?
+  - What pre-made character libraries exist beyond Mixamo?
+
+decisions:
+  - freelancer_cost: Too expensive for hobby experiment ($500-2200)
+  - diy_approach: Preferred - use free tools (Mixamo, BlendSwap, AI generators)
+  - quality_vs_cost: Accept "good enough" quality for MVP, polish later if successful
+  - procedural_vs_baked: Keep pre-baked animation design for quality
+  - multi_llm_research: Use Claude/GPT/Gemini/Perplexity to discover tools
+
+findings:
+  - Rigify is built into Blender with standardized bone names
+  - Procedural animation saves assets but looks robotic
+  - Pre-baked clips are important for organic "alive" feeling
+  - Fiverr artists use same tools (Blender, Rigify) user could use themselves
+  - Mixamo has 2500+ free animations including DJ-specific motions
+  - Hybrid approach possible: 2-3 key clips + procedural modulation
+
+worked:
+  - Reviewing recent handoffs gave complete picture of project state
+  - Identifying ledger inconsistencies improved documentation accuracy
+  - Breaking down asset requirements clarified scope (8 files, specific specs)
+  - Cost analysis helped user decide on DIY approach
+
+failed: []
+
+next:
+  - Execute multi-LLM research prompt across Claude.ai, ChatGPT, Gemini, Perplexity
+  - Compare research results to find best free/cheap asset sources
+  - Evaluate AI character generation tools (Meshy, Tripo3D, etc.)
+  - Attempt DIY asset creation using discovered tools
+  - If successful, enable Generate Video tab in mixer_ui.py
+
+research_prompt: |
+  **Research Task: Blender Character Creation Tools & Workflows (2024-2025)**
+
+  I'm looking for tools, addons, AI services, or workflows that make creating
+  rigged, animated 3D characters for Blender easier or faster. The end goal is
+  a stylized cartoon DJ character with 5-6 short animations for an automated
+  video pipeline.
+
+  Categories to research:
+  1. AI-Powered 3D Character Generation
+  2. Blender Character Creation Addons
+  3. AI Motion Capture / Video-to-Animation
+  4. Procedural Animation Tools
+  5. Pre-Made Character Libraries
+  6. Recent Breakthroughs (2024-2025)
+
+  For each tool, provide: Name, URL, Cost, What it does, Output format,
+  Quality level, Limitations.
+
+  Constraints: Blender 3.6+, prefer free or under $50, stylized/cartoon style,
+  need rigged character + 5-6 short animation clips.
+
+asset_requirements:
+  core_files:
+    - avatar_base.blend: DJ character with Rigify rig
+    - studio_default.blend: DJ booth with camera, lighting, decks
+  action_clips:
+    - idle_bob.blend: 2s looping head bob
+    - deck_scratch_L.blend: 0.8s left hand scratch
+    - deck_scratch_R.blend: 0.8s right hand scratch
+    - crossfader_hit.blend: 1s crossfader slide
+    - drop_reaction.blend: 1.5s energetic reaction
+    - spotlight_present.blend: 2s gesture to audience
+
+free_sources_identified:
+  - name: Mixamo
+    url: mixamo.com
+    what: Characters + 2500 animations (including DJ motions)
+    cost: Free
+  - name: BlendSwap
+    url: blendswap.com
+    what: Community .blend files
+    cost: Free (CC-0/CC-BY)
+  - name: Sketchfab
+    url: sketchfab.com
+    what: Downloadable 3D models
+    cost: Free (check license per asset)
+  - name: ReadyPlayerMe
+    url: readyplayerme.com
+    what: Custom avatar creator
+    cost: Free
+
+files:
+  created:
+    - thoughts/shared/handoffs/general/2026-01-21_blender-asset-research.yaml
+  modified:
+    - CONTINUITY.md (fixed outdated sections, updated to Session 10)
+  deleted: []
