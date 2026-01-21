@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-21 (Session 10)
+**Last Updated:** 2026-01-21 (Session 11)
 **Project:** The Mixer - AI-powered audio mashup pipeline + Crossfade Club visual DJ system
-**Current Phase:** All Complete - Researching Free Blender Assets 🎨
+**Current Phase:** All Complete - Blender Asset Research Complete 🎯
 
 ---
 
@@ -564,36 +564,55 @@ python -m mixer --help
 
 ## Next Session Priorities
 
-### Immediate: Acquire Blender Assets
+### Immediate: Blender Asset Research Complete ✅
 
-**Goal:** Find free or low-cost Blender assets to enable Crossfade Club video generation
+**Status:** RESEARCH COMPLETE (2026-01-21)
 
-**Approach (decided 2026-01-21):**
-1. Multi-LLM research to discover tools/packages for character creation
-2. Evaluate free sources: Mixamo, BlendSwap, Sketchfab, AI generators
-3. DIY path preferred (hobby project, not revenue-generating yet)
+**Research Completed:**
+- Multi-LLM research across OpenAI ChatGPT, Claude, Google Gemini, Perplexity AI
+- 4 comprehensive reports (11,000+ words each) saved to `docs/research/blender-assets/`
+- Synthesis document comparing all findings with actionable recommendations
+- Handoff document created: `thoughts/shared/handoffs/general/2026-01-21_blender-asset-research.yaml`
 
-**Research Prompt Sent To:** Claude.ai, ChatGPT, Gemini, Perplexity
+**Major Discoveries:**
+1. **Autodesk Flow Studio FREE Tier** (Aug 2025) - Professional AI mocap, was $240/year, now FREE ⭐
+2. **QuickMagic AI** ($18/mo) - Best AI mocap quality, beats $500/mo Move.ai
+3. **PUPA Animate Pro 3.0** ($35) - Complete May 2025 rewrite, 2000+ animation library
+4. **System Audio FFT** (free, GitHub) - Real-time audio-reactive addon
+5. **Low Poly DJ Kid** ($7, TurboSquid) - Pre-rigged DJ character for quick validation
 
-**Research Categories:**
-- AI-powered 3D character generation (Meshy.ai, Tripo3D, etc.)
-- Blender character creation addons (Rigify, Auto-Rig Pro, MB-Lab)
-- AI motion capture / video-to-animation tools
-- Procedural animation tools
-- Pre-made character libraries beyond Mixamo
+**Recommended Workflow Options:**
+
+| Option | Cost | Time | Quality | Best For |
+|--------|------|------|---------|----------|
+| Ultra-Budget | $7 | 3-4h | Prototype | Concept validation |
+| Zero Budget | $0 | 12-15h | Indie quality | Learning, no budget |
+| **No-Regrets Stack** ⭐ | **$87** | **6-8h** | **Professional** | **Serious project (RECOMMENDED)** |
+| Hybrid | $35-45 | 8-10h | Professional | Fast turnaround |
+
+**No-Regrets Stack Details ($87 one-time, no ongoing subscriptions):**
+- Tripo3D ($12, cancel after generation)
+- Auto-Rig Pro ($40, keep forever)
+- PUPA Animate Pro ($35, keep forever)
+- QuickMagic AI ($18, cancel after)
+- Flow Studio (FREE)
+- System Audio FFT (FREE)
+
+**Professional Assessment:** 100% viable for Crossfade Club social media content (8.5/10 quality, comparable to indie game cutscenes and YouTube animation channels)
 
 **Asset Requirements (from `studio/assets/README.md`):**
 - `avatar_base.blend` - Rigged DJ character (Rigify compatible)
 - `studio_default.blend` - DJ booth with camera/lighting
 - 6 animation clips: idle_bob, deck_scratch_L/R, crossfader_hit, drop_reaction, spotlight_present
 
-**Free Sources Identified:**
-| Source | What | License |
-|--------|------|---------|
-| Mixamo.com | Characters + 2500 animations | Free |
-| BlendSwap.com | Community .blend files | CC-0/CC-BY |
-| Sketchfab.com | Downloadable models | Check per-asset |
-| ReadyPlayerMe.com | Custom avatars | Free |
+**Consensus Tools (All 4 LLMs):**
+- Meshy.ai / Tripo3D (character generation, free tiers)
+- Auto-Rig Pro ($40) / Rigify (free) for rigging
+- Mixamo (free, 2500+ animations)
+- Flow Studio (FREE professional mocap)
+- System Audio FFT (free, audio-reactive)
+
+**Next Step:** User decision - which path to take (ultra-budget $7 validation vs no-regrets $87 professional)
 
 ---
 
@@ -629,7 +648,7 @@ python -m mixer --help
 - `2026-01-20_ui-video-tab-integration.yaml` - Generate Video tab added to UI (disabled)
 - `2026-01-20_project-cleanup.yaml` - Docs reorganization, cache cleanup
 - `2026-01-20_documentation-update.yaml` - SETUP.md, README, CLAUDE.md updates
-- `2026-01-21_blender-asset-research.yaml` - Asset research session ⭐ (Latest)
+- `2026-01-21_blender-asset-research.yaml` - Multi-LLM asset research complete ⭐ (Latest)
 
 **Format:** YAML with sections: goal, done_this_session, blockers, decisions, findings, worked, failed, next
 
