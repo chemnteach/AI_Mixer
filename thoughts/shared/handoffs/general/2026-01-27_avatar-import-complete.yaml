@@ -1,0 +1,86 @@
+---
+session: 13
+date: 2026-01-27
+duration: ~30 minutes
+project: AI_Mixer / Crossfade Club
+
+goal: |
+  Import downloaded Sketchfab DJ character into Blender and save as avatar_base.blend
+  (first of 8 required Blender assets for Crossfade Club video pipeline)
+
+done_this_session:
+  - Verified character files already extracted at studio/assets/source/Black Character Rigged UE4/
+  - Opened Blender 5.0.1
+  - Imported Black Boy Cartoon Lowpoly.fbx via File > Import > FBX
+  - Tested rig in Pose Mode - bones correctly deform mesh
+  - Saved as avatar_base.blend (initially saved to wrong location due to path parsing)
+  - Moved file to correct location: studio/assets/avatar_base.blend (1.3 MB)
+  - Updated CONTINUITY.md ledger with progress
+
+blockers: []
+
+decisions:
+  - title: Stay on current machine for development
+    choice: Continue on Windows VM (24GB RAM) rather than migrate to home box (256GB)
+    rationale: |
+      Current work is lightweight (Blender setup, file management).
+      Heavy compute (video rendering, Demucs) comes later.
+      Migration adds friction; wait until pipeline is proven end-to-end.
+
+findings:
+  - Blender 5.0.1 path parsing quirk - typing full Windows path in save dialog creates filename with underscores
+  - FBX import worked smoothly with Auto-Rig Pro rigged character
+  - Rig is functional - bones move, mesh follows correctly
+
+worked:
+  - FBX import from Sketchfab download
+  - Rig testing in Pose Mode
+  - Moving misplaced file via bash
+
+failed: []
+
+assets_complete:
+  - name: avatar_base.blend
+    path: studio/assets/avatar_base.blend
+    size: 1.3 MB
+    status: complete
+    notes: DJ character with working rig, textures embedded
+
+assets_remaining:
+  - name: studio_default.blend
+    description: DJ booth environment
+    source: Sketchfab/BlendSwap or manual modeling
+  - name: idle_bob.blend
+    description: Idle animation with weight shift
+    source: Mixamo
+  - name: deck_scratch_L.blend
+    description: Left turntable scratch motion
+    source: Mixamo or custom
+  - name: deck_scratch_R.blend
+    description: Right turntable scratch motion
+    source: Mixamo or custom
+  - name: crossfader_hit.blend
+    description: Crossfader slide gesture
+    source: Mixamo or custom
+  - name: drop_reaction.blend
+    description: Excited/victory gesture for beat drops
+    source: Mixamo
+  - name: spotlight_present.blend
+    description: Pointing/greeting motion
+    source: Mixamo
+
+next:
+  - priority: high
+    task: Download 5-6 animations from Mixamo (free Adobe account)
+    notes: Quickest path to more assets - just download FBX files
+  - priority: medium
+    task: Find or create DJ booth environment (studio_default.blend)
+    notes: Search Sketchfab for free "DJ booth" or model simple version
+  - priority: low
+    task: Consider migration to home box (256GB RAM, 4GB VRAM)
+    notes: Wait until pipeline is proven; CPU rendering is fine for this project
+
+hardware_notes:
+  current_machine: Windows VM, 24GB RAM (upgrading to 36GB soon)
+  home_box: 256GB RAM, 4GB VRAM - good for batch processing later
+  recommendation: Stay on current machine for development, migrate for production

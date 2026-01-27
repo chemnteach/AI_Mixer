@@ -1,8 +1,8 @@
 # Continuity Ledger - The Mixer
 
-**Last Updated:** 2026-01-21 (Session 11)
+**Last Updated:** 2026-01-27 (Session 13)
 **Project:** The Mixer - AI-powered audio mashup pipeline + Crossfade Club visual DJ system
-**Current Phase:** All Complete - Blender Asset Research Complete 🎯
+**Current Phase:** Asset Acquisition In Progress - Avatar Complete (1/8) 🎯
 
 ---
 
@@ -564,55 +564,38 @@ python -m mixer --help
 
 ## Next Session Priorities
 
-### Immediate: Blender Asset Research Complete ✅
+### Immediate: Acquire Remaining Blender Assets (7 remaining) 🔄
 
-**Status:** RESEARCH COMPLETE (2026-01-21)
+**Status:** IN PROGRESS (2026-01-27)
 
-**Research Completed:**
-- Multi-LLM research across OpenAI ChatGPT, Claude, Google Gemini, Perplexity AI
-- 4 comprehensive reports (11,000+ words each) saved to `docs/research/blender-assets/`
-- Synthesis document comparing all findings with actionable recommendations
-- Handoff document created: `thoughts/shared/handoffs/general/2026-01-21_blender-asset-research.yaml`
+**Completed Assets (1/8):**
+- ✅ `avatar_base.blend` (1.3 MB) - DJ character with working rig
 
-**Major Discoveries:**
-1. **Autodesk Flow Studio FREE Tier** (Aug 2025) - Professional AI mocap, was $240/year, now FREE ⭐
-2. **QuickMagic AI** ($18/mo) - Best AI mocap quality, beats $500/mo Move.ai
-3. **PUPA Animate Pro 3.0** ($35) - Complete May 2025 rewrite, 2000+ animation library
-4. **System Audio FFT** (free, GitHub) - Real-time audio-reactive addon
-5. **Low Poly DJ Kid** ($7, TurboSquid) - Pre-rigged DJ character for quick validation
+**Session 12-13 Progress:**
+- ✅ Decided on **Ultra-Budget path** ($0 - found free alternative)
+- ✅ Found FREE DJ character on Sketchfab (saved $7 vs TurboSquid)
+  - "Black Lowpoly Character Rigged for UE4" - rigged with Auto-Rig Pro
+  - URL: https://sketchfab.com/3d-models/black-lowpoly-character-rigged-for-ue4-a76c754f01c44e36915b96609788168d
+- ✅ Downloaded and extracted to `studio/assets/source/Black Character Rigged UE4/`
+- ✅ Installed Blender 5.0.1
+- ✅ Imported FBX into Blender, tested rig (bones move mesh correctly)
+- ✅ Saved as `studio/assets/avatar_base.blend`
 
-**Recommended Workflow Options:**
+**Still Needed (7 assets):**
+- `studio_default.blend` - DJ booth environment (search Sketchfab/BlendSwap)
+- 6 animation clips from Mixamo (free):
+  - `actions/idle_bob.blend`
+  - `actions/deck_scratch_L.blend`
+  - `actions/deck_scratch_R.blend`
+  - `actions/crossfader_hit.blend`
+  - `actions/drop_reaction.blend`
+  - `actions/spotlight_present.blend`
 
-| Option | Cost | Time | Quality | Best For |
-|--------|------|------|---------|----------|
-| Ultra-Budget | $7 | 3-4h | Prototype | Concept validation |
-| Zero Budget | $0 | 12-15h | Indie quality | Learning, no budget |
-| **No-Regrets Stack** ⭐ | **$87** | **6-8h** | **Professional** | **Serious project (RECOMMENDED)** |
-| Hybrid | $35-45 | 8-10h | Professional | Fast turnaround |
+**Recommended Next Steps:**
+1. **Mixamo animations** (quickest) - Download 5-6 FBX clips from mixamo.com
+2. **DJ booth** - Find free asset on Sketchfab or model simple version
 
-**No-Regrets Stack Details ($87 one-time, no ongoing subscriptions):**
-- Tripo3D ($12, cancel after generation)
-- Auto-Rig Pro ($40, keep forever)
-- PUPA Animate Pro ($35, keep forever)
-- QuickMagic AI ($18, cancel after)
-- Flow Studio (FREE)
-- System Audio FFT (FREE)
-
-**Professional Assessment:** 100% viable for Crossfade Club social media content (8.5/10 quality, comparable to indie game cutscenes and YouTube animation channels)
-
-**Asset Requirements (from `studio/assets/README.md`):**
-- `avatar_base.blend` - Rigged DJ character (Rigify compatible)
-- `studio_default.blend` - DJ booth with camera/lighting
-- 6 animation clips: idle_bob, deck_scratch_L/R, crossfader_hit, drop_reaction, spotlight_present
-
-**Consensus Tools (All 4 LLMs):**
-- Meshy.ai / Tripo3D (character generation, free tiers)
-- Auto-Rig Pro ($40) / Rigify (free) for rigging
-- Mixamo (free, 2500+ animations)
-- Flow Studio (FREE professional mocap)
-- System Audio FFT (free, audio-reactive)
-
-**Next Step:** User decision - which path to take (ultra-budget $7 validation vs no-regrets $87 professional)
+**Research Reference:** See `docs/research/blender-assets/synthesis.md` for full tool recommendations
 
 ---
 
@@ -648,7 +631,9 @@ python -m mixer --help
 - `2026-01-20_ui-video-tab-integration.yaml` - Generate Video tab added to UI (disabled)
 - `2026-01-20_project-cleanup.yaml` - Docs reorganization, cache cleanup
 - `2026-01-20_documentation-update.yaml` - SETUP.md, README, CLAUDE.md updates
-- `2026-01-21_blender-asset-research.yaml` - Multi-LLM asset research complete ⭐ (Latest)
+- `2026-01-21_blender-asset-research.yaml` - Multi-LLM asset research complete
+- `2026-01-26_avatar-acquisition-started.yaml` - DJ character downloaded, Blender installed
+- `2026-01-27_avatar-import-complete.yaml` - Avatar imported to Blender, rig tested, saved ⭐ (Latest)
 
 **Format:** YAML with sections: goal, done_this_session, blockers, decisions, findings, worked, failed, next
 

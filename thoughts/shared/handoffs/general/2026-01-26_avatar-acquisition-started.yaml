@@ -1,0 +1,111 @@
+---
+session: avatar-acquisition-started
+date: 2026-01-26
+status: in_progress
+outcome: PARTIAL - interrupted for server maintenance
+---
+
+goal: Acquire Blender assets for Crossfade Club video generation (avatar, studio, animations)
+
+now: DJ character downloaded and extracted, Blender installed, ready to import FBX and save as .blend
+
+test: N/A (asset acquisition phase)
+
+done_this_session:
+  - task: Chose Ultra-Budget path for asset acquisition
+    notes: |
+      Decided to start with cheapest option to validate pipeline
+      Originally planned $7 TurboSquid purchase
+
+  - task: Found FREE DJ character on Sketchfab (saved $7)
+    files: []
+    notes: |
+      "Black Lowpoly Character Rigged for UE4" by MotionStudioArts
+      - Pre-rigged with Auto-Rig Pro (same tool recommended in research)
+      - Low poly, good for rendering performance
+      - FBX format (imports into Blender)
+      URL: https://sketchfab.com/3d-models/black-lowpoly-character-rigged-for-ue4-a76c754f01c44e36915b96609788168d
+
+  - task: Downloaded and extracted character to project
+    files:
+      - studio/assets/source/Black Character Rigged UE4/Black Boy Cartoon Lowpoly.fbx
+      - studio/assets/source/Black Character Rigged UE4/*.png (17 texture files)
+      - studio/assets/textures/*.png (duplicate textures)
+    notes: |
+      Extracted from: Downloads/black-lowpoly-character-rigged-for-ue4.zip
+      Main model: Black Boy Cartoon Lowpoly.fbx (1.2 MB)
+      Textures: diffuse, normal, specular, gloss for body/top/bottom/shoes
+
+  - task: Installed Blender
+    notes: |
+      User did not have Blender installed
+      Downloaded from blender.org (~300 MB)
+      First-time Blender user
+
+blockers:
+  - server_maintenance: Session interrupted for server maintenance
+  - avatar_not_saved: FBX downloaded but not yet imported/saved as .blend
+
+questions: []
+
+decisions:
+  - ultra_budget_path: Chose $0 path instead of $7 (found free Sketchfab alternative)
+  - sketchfab_over_turbosquid: Free rigged DJ character vs $7 purchase
+
+worked:
+  - Web search found free DJ character that matches requirements
+  - Sketchfab model already rigged with Auto-Rig Pro (quality rig)
+  - Extraction to project folder successful
+  - Blender installation straightforward
+
+failed: []
+
+next:
+  immediate:
+    - step: Import FBX into Blender
+      command: File → Import → FBX → select "Black Boy Cartoon Lowpoly.fbx"
+
+    - step: Test rig works
+      command: Select character → Pose Mode → rotate arm bone
+
+    - step: Save as avatar_base.blend
+      path: C:\Users\cdbrown\Git\AI_Mixer\studio\assets\avatar_base.blend
+
+  short_term:
+    - Find/create studio_default.blend (DJ booth environment)
+    - Get 6 animation clips from Mixamo (free)
+    - Test Director Agent → Studio → Encoder pipeline
+
+  animations_needed:
+    - idle_bob.blend (looping head bob)
+    - deck_scratch_L.blend (left hand vinyl scratch)
+    - deck_scratch_R.blend (right hand vinyl scratch)
+    - crossfader_hit.blend (crossfader slide)
+    - drop_reaction.blend (energetic reaction)
+    - spotlight_present.blend (gesture to crowd)
+
+files:
+  created:
+    - studio/assets/source/Black Character Rigged UE4/ (entire folder)
+    - studio/assets/textures/ (texture files)
+    - thoughts/shared/handoffs/general/2026-01-26_avatar-acquisition-started.yaml
+  modified:
+    - CONTINUITY.md (updated status and next steps)
+  deleted: []
+
+asset_status:
+  avatar_base.blend:
+    status: IN_PROGRESS
+    source: Sketchfab (free)
+    notes: FBX downloaded, needs Blender import and save
+
+  studio_default.blend:
+    status: NOT_STARTED
+    source: TBD (Sketchfab/BlendSwap search needed)
+
+  animations:
+    status: NOT_STARTED
+    source: Mixamo (free, 2500+ animations)
+    count_needed: 6
+
+cost_so_far: $0 (found free alternative to $7 TurboSquid model)
